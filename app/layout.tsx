@@ -40,24 +40,42 @@ export const metadata: Metadata = {
   creator: "Challenger Memories",
 
   openGraph: {
-    title: "Challenger Memories",
-    description:
-      "Share stories inspired by the Challenger Space Shuttle crew and preserve their legacy.",
-    url: "https://www.challengermemories.com",
-    siteName: "Challenger Memories",
+  title: "Challenger Memories",
+  description:
+    "Share stories inspired by the Challenger Space Shuttle crew.",
 
-    images: [
-      {
-        url: "/og-image.png",   // 1200x630 image for WhatsApp & Instagram
-        width: 1200,
-        height: 630,
-        alt: "Challenger Memories",
-      },
-    ],
+  url: "https://www.challengermemories.com",
+  siteName: "Challenger Memories",
 
-    locale: "en_US",
-    type: "website",
-  },
+  images: [
+    {
+      url: "https://www.challengermemories.com/og-image.png",
+      width: 1200,
+      height: 630,
+      alt: "Challenger Memories",
+    },
+  ],
+
+  locale: "en_US",
+  type: "website",
+},
+
+twitter: {
+  card: "summary_large_image",
+  title: "Challenger Memories",
+  description:
+    "Stories inspired by the Challenger Space Shuttle crew.",
+
+  images: [
+    "https://www.challengermemories.com/og-image.png",
+  ],
+},
+
+icons: {
+  icon: "https://www.challengermemories.com/favicon.png",
+  shortcut: "https://www.challengermemories.com/favicon.png",
+  apple: "https://www.challengermemories.com/favicon.png",
+},,
 
   twitter: {
     card: "summary_large_image",
