@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://vivekjoshi.online"),
+  metadataBase: new URL("https://www.challengermemories.com"),
 
   title: {
     default: "Challenger Tribute | Stories Inspired by the Challenger Crew",
@@ -43,15 +43,15 @@ export const metadata: Metadata = {
     title: "Challenger Tribute | Stories Inspired by the Challenger Crew",
     description:
       "Read and share meaningful stories about how the Challenger crew inspired people around the world.",
-    url: "https://vivekjoshi.online",
-    siteName: "Challenger Tribute",
+    url: "https://www.challengermemories.com",
+    siteName: "Challenger Memories",
 
     images: [
       {
-        url: "https://vivekjoshi.online/herobanner.webp",
+        url: "https://www.challengermemories.com/logo.png",
         width: 1200,
         height: 630,
-        alt: "Challenger Tribute Banner",
+        alt: "Challenger Memories Logo",
       },
     ],
 
@@ -61,19 +61,31 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Challenger Tribute",
+    title: "Challenger Tribute | Stories Inspired by the Challenger Crew",
     description:
-      "Share your story about how the Challenger crew inspired you.",
-    images: ["https://vivekjoshi.online/herobanner.webp"],
+      "Read and share meaningful stories about how the Challenger crew inspired people around the world.",
+    images: ["https://www.challengermemories.com/logo.png"],
   },
 
   icons: {
-    icon: "/favicon.ico",
+  icon: "/logo.png",
+  shortcut: "/logo.png",
+  apple: "/logo.png",
+},
+
+  alternates: {
+    canonical: "https://www.challengermemories.com",
   },
 
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 
   category: "education",
