@@ -48,11 +48,11 @@ export const metadata: Metadata = {
 
     images: [
       {
-        url: "https://www.challengermemories.com/og-image.webp",
+        url: "https://www.challengermemories.com/og-image.png",
         width: 1200,
         height: 630,
         alt: "Challenger Memories Preview",
-        type: "image/webp",
+        type: "image/png",
       },
     ],
 
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
       "Stories inspired by the Challenger Space Shuttle crew.",
 
     images: [
-      "https://www.challengermemories.com/og-image.webp",
+      "https://www.challengermemories.com/og-image.png",
     ],
   },
 
