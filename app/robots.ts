@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
 
-    sitemap: "https://www.vivekjoshi.online//sitemap.xml",
+    sitemap: "https://www.challengermemories.com/sitemap.xml",
   };
 }
