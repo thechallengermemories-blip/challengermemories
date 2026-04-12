@@ -45,7 +45,6 @@ export const metadata: Metadata = {
       "Read and share meaningful stories about how the Challenger crew inspired people around the world.",
     url: "https://www.challengermemories.com",
     siteName: "Challenger Memories",
-
     images: [
       {
         url: "https://www.challengermemories.com/logo.png",
@@ -54,7 +53,6 @@ export const metadata: Metadata = {
         alt: "Challenger Memories Logo",
       },
     ],
-
     locale: "en_US",
     type: "website",
   },
@@ -68,10 +66,15 @@ export const metadata: Metadata = {
   },
 
   icons: {
-  icon: "/logo.png",
-  shortcut: "/logo.png",
-  apple: "/logo.png",
-},
+    icon: [
+      { url: "/favicon/favicon.ico", sizes: "any" },
+      { url: "/favicon/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon/favicon-96x96.png", sizes: "96x96", type: "image/png" },
+    ],
+    apple: "/favicon/apple-touch-icon.png",
+  },
+
+  manifest: "/favicon/site.webmanifest",
 
   alternates: {
     canonical: "https://www.challengermemories.com",
