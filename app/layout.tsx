@@ -40,55 +40,58 @@ export const metadata: Metadata = {
   creator: "Challenger Memories",
 
   openGraph: {
-  title: "Challenger Memories",
-  description:
-    "Share stories inspired by the Challenger Space Shuttle crew.",
+    title: "Challenger Memories",
+    description:
+      "Share stories inspired by the Challenger Space Shuttle crew and preserve their legacy.",
+    url: "https://www.challengermemories.com",
+    siteName: "Challenger Memories",
 
-  url: "https://www.challengermemories.com",
-  siteName: "Challenger Memories",
+    images: [
+      {
+        url: "https://www.challengermemories.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Challenger Memories Preview",
+        type: "image/png",
+      },
+    ],
 
-  images: [
-    {
-      url: "https://www.challengermemories.com/og-image.png",
-      width: 1200,
-      height: 630,
-      alt: "Challenger Memories",
-    },
-  ],
-
-  locale: "en_US",
-  type: "website",
-},
-
-twitter: {
-  card: "summary_large_image",
-  title: "Challenger Memories",
-  description:
-    "Stories inspired by the Challenger Space Shuttle crew.",
-
-  images: [
-    "https://www.challengermemories.com/og-image.png",
-  ],
-},
-
-icons: {
-  icon: "https://www.challengermemories.com/favicon.png",
-  shortcut: "https://www.challengermemories.com/favicon.png",
-  apple: "https://www.challengermemories.com/favicon.png",
-},,
+    locale: "en_US",
+    type: "website",
+  },
 
   twitter: {
     card: "summary_large_image",
     title: "Challenger Memories",
     description:
       "Stories inspired by the Challenger Space Shuttle crew.",
-    images: ["/og-image.png"],
+
+    images: [
+      "https://www.challengermemories.com/og-image.png",
+    ],
   },
 
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [
+      {
+        url: "https://www.challengermemories.com/favicon.png",
+        sizes: "32x32",
+        type: "image/png",
+      },
+      {
+        url: "https://www.challengermemories.com/favicon.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
+    shortcut: "https://www.challengermemories.com/favicon.png",
+    apple: [
+      {
+        url: "https://www.challengermemories.com/favicon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
   },
 
   alternates: {
