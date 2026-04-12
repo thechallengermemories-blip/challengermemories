@@ -48,11 +48,11 @@ export const metadata: Metadata = {
 
     images: [
       {
-        url: "https://www.challengermemories.com/og-image.png",
+        url: "https://www.challengermemories.com/og-image.webp",
         width: 1200,
         height: 630,
         alt: "Challenger Memories Preview",
-        type: "image/png",
+        type: "image/webp",
       },
     ],
 
@@ -67,29 +67,31 @@ export const metadata: Metadata = {
       "Stories inspired by the Challenger Space Shuttle crew.",
 
     images: [
-      "https://www.challengermemories.com/og-image.png",
+      "https://www.challengermemories.com/og-image.webp",
     ],
   },
 
   icons: {
     icon: [
       {
-        url: "https://www.challengermemories.com/favicon.png",
+        url: "https://www.challengermemories.com/favicon.webp",
         sizes: "32x32",
-        type: "image/png",
+        type: "image/webp",
       },
       {
-        url: "https://www.challengermemories.com/favicon.png",
+        url: "https://www.challengermemories.com/favicon.webp",
         sizes: "192x192",
-        type: "image/png",
+        type: "image/webp",
       },
     ],
-    shortcut: "https://www.challengermemories.com/favicon.png",
+
+    shortcut: "https://www.challengermemories.com/favicon.webp",
+
     apple: [
       {
-        url: "https://www.challengermemories.com/favicon.png",
+        url: "https://www.challengermemories.com/favicon.webp",
         sizes: "180x180",
-        type: "image/png",
+        type: "image/webp",
       },
     ],
   },
