@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.challengermemories.com"),
 
   title: {
-    default: "Challenger Tribute | Stories Inspired by the Challenger Crew",
-    template: "%s | Challenger Tribute",
+    default: "Challenger Memories | Tribute to the Challenger Crew",
+    template: "%s | Challenger Memories",
   },
 
   description:
-    "A heartfelt tribute website where people share stories about how the Challenger Space Shuttle crew inspired their lives. Explore memories, reflections, and meaningful experiences influenced by the Challenger mission.",
+    "Share and read meaningful stories inspired by the Challenger Space Shuttle crew. Preserving legacy, inspiration, and remembrance.",
 
   keywords: [
     "Challenger Space Shuttle",
@@ -36,22 +36,22 @@ export const metadata: Metadata = {
     "share your story Challenger",
   ],
 
-  authors: [{ name: "Challenger Tribute Project" }],
-  creator: "Challenger Tribute Project",
+  authors: [{ name: "Challenger Memories Project" }],
+  creator: "Challenger Memories",
 
   openGraph: {
-    title: "Challenger Tribute | Stories Inspired by the Challenger Crew",
+    title: "Challenger Memories",
     description:
-      "Read and share meaningful stories about how the Challenger crew inspired people around the world.",
+      "Share stories inspired by the Challenger Space Shuttle crew and preserve their legacy.",
     url: "https://www.challengermemories.com",
     siteName: "Challenger Memories",
 
     images: [
       {
-        url: "https://www.challengermemories.com/logo.png",
+        url: "/og-image.png",   // 1200x630 image for WhatsApp & Instagram
         width: 1200,
         height: 630,
-        alt: "Challenger Memories Logo",
+        alt: "Challenger Memories",
       },
     ],
 
@@ -61,17 +61,17 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Challenger Tribute | Stories Inspired by the Challenger Crew",
+    title: "Challenger Memories",
     description:
-      "Read and share meaningful stories about how the Challenger crew inspired people around the world.",
-    images: ["https://www.challengermemories.com/logo.png"],
+      "Stories inspired by the Challenger Space Shuttle crew.",
+    images: ["/og-image.png"],
   },
 
   icons: {
-  icon: "/logo.png",
-  shortcut: "/logo.png",
-  apple: "/logo.png",
-},
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 
   alternates: {
     canonical: "https://www.challengermemories.com",
