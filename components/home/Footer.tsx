@@ -102,8 +102,7 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-slate-600 text-[10px] uppercase tracking-[0.2em]">
-            © {currentYear} Eternal Mission Tribute. Non-Profit Educational
-            Project.
+            © {currentYear} Eternal Mission Tribute.
           </div>
 
           {/* DEVELOPER CREDIT: DISCREET & PREMIUM */}

@@ -133,7 +133,7 @@ export const AboutTribute = () => {
             >
               This website is not just a digital archive; it is a collective pulse of inspiration. 
               The stories shared here bridge the gap between the stars and our hearts, ensuring that 
-              the courage of the 14 brave souls continues to fuel the dreams of explorers for 
+              the courage of the 7 brave souls continues to fuel the dreams of explorers for 
               generations to come.
             </motion.p>
 
@@ -145,7 +145,7 @@ export const AboutTribute = () => {
               className="flex gap-10 mt-4"
             >
               <div className="flex flex-col">
-                <span className="text-3xl font-serif text-white">14</span>
+                <span className="text-3xl font-serif text-white">7</span>
                 <span className="text-[10px] uppercase tracking-widest text-slate-500">Heroes Honored</span>
               </div>
               <div className="w-[1px] h-12 bg-slate-800" />

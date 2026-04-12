@@ -44,17 +44,17 @@ const ContactPage = () => {
               <ContactInfoItem 
                 icon={<Mail className="w-5 h-5" />} 
                 title="General Inquiry" 
-                detail="tribute@space-shuttle-memorial.org" 
+                detail="thechallengermemories@gmail.com" 
               />
               <ContactInfoItem 
                 icon={<MessageSquare className="w-5 h-5" />} 
                 title="Story Submissions" 
-                detail="stories@space-shuttle-memorial.org" 
+                detail="thechallengermemories@gmail.com" 
               />
               <ContactInfoItem 
                 icon={<Info className="w-5 h-5" />} 
                 title="Historical Corrections" 
-                detail="archive@space-shuttle-memorial.org" 
+                detail="thechallengermemories@gmail.com" 
               />
             </div>
 

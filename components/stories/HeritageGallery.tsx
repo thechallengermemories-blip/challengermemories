@@ -38,8 +38,8 @@ export const HeritageGallery = ({ stories }: any) => {
     {
       id: 'nasa',
       data: stories.type3,
-      title: "Mission Partners",
-      subtitle: "NASA Colleagues",
+      title: "Work Network",
+      subtitle: "Colleagues & Associates",
       description: "The architects of discovery who stood side-by-side reaching for the stars.",
       icon: Rocket,
       accentColor: {

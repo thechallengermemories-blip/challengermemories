@@ -44,10 +44,10 @@ const AboutPage = () => {
               History is often recorded in cold dates and technical reports, but the true impact of the 
               Challenger mission lives in the personal memories of those who watched from Earth.
             </p>
-            <p className="text-slate-400 leading-relaxed font-light">
-              We built this platform to move beyond the tragedy and focus on the <strong>human story</strong>. 
-              By sharing these chronicles, we ensure that the names <span className="text-white">Scobee, Smith, McNair, Onizuka, Resnik, Jarvis, and McAuliffe</span> are carried forward by those they inspired.
-            </p>
+           <p className="text-slate-400 leading-relaxed font-light">
+  We built this platform to move beyond the tragedy and focus on the <strong>human story</strong>. 
+  By sharing these chronicles, we ensure that the names <span className="text-white">Francis R. Scobee, Michael J. Smith, Ronald E. McNair, Ellison S. Onizuka, Judith A. Resnik, Gregory B. Jarvis, and Christa McAuliffe</span> are carried forward by those they inspired.
+</p>
           </motion.div>
           
           <motion.div 
@@ -77,7 +77,7 @@ const AboutPage = () => {
           
           <MissionContextCard 
             title="Challenger // January 28, 1986" 
-            description="STS-51-L was set to be a milestone in history—the first time a teacher and civilian, Christa McAuliffe, would enter orbit. Though the journey was cut short, it unified a global audience and redefined the resilience of the human spirit in our quest for the stars."
+            description="STS-51-L was set to be a milestone in history—the first time a teacher and civilian, Christa McAuliffe, would enter orbit. Though the journey was cut short, it unified a global audience and redefined the resilience of the human spirit in our quest to reach for the stars."
             icon={<Rocket className="w-5 h-5" />}
           />
         </div>
@@ -93,8 +93,8 @@ const AboutPage = () => {
         >
             <Users className="w-8 h-8 text-sky-400/40 mx-auto mb-6" />
             <h3 className="text-xl font-serif text-white mb-4">A Community Tribute</h3>
-            <p className="text-slate-500 text-sm leading-relaxed mb-12 max-w-lg mx-auto font-light">
-                This is a non-profit archival project. Our goal is to provide a dignified space for the public 
+            <p className="text-slate-500 text-sm leading-relaxed mb-10 max-w-lg mx-auto font-light">
+                Our goal is to provide a dignified space for the public 
                 to record where they were and how they felt, turning a moment of silence into an eternal conversation.
             </p>
             <div className="flex justify-center gap-6 items-center">
