@@ -53,6 +53,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  console.log("MONGODB_URI:", process.env.MONGODB_URI);
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);
@@ -91,7 +92,8 @@ export async function GET(req: Request) {
       totalPages: Math.ceil(totalStories / limit),
       currentPage: page
     });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
+  }  catch (error: any) {
+  console.error("Full error:", error); // 👈 add this
+  return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+}
 }
