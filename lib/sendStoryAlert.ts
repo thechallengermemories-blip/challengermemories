@@ -6,7 +6,7 @@ export async function sendStoryAlert(story: {
   title: string;
   mission: string;
   narrative: string;
-  media: MediaItem[];           // ← pass the full array
+  media: MediaItem[];          
 }) {
   const mediaHtml = story.media.length > 0 ? `
     <div style="margin:24px 0">
