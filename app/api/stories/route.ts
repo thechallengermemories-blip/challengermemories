@@ -108,18 +108,24 @@ export async function POST(req: Request) {
       category,
       relation,
       imageUrl,
-      media: mediaUrls,
+      media:  mediaUrls,
       status: "pending", // ← always pending, admin must approve
     });
-     // Pass mediaUrls directly — already built earlier in the route
-    sendStoryAlert({
-      name:      String(name),
-      email:     String(email || ""),
-      title:     String(title),
-      mission:   String(mission),
-      narrative: String(narrative),
-      media:     mediaUrls,          // ← { url, type }[] from Cloudinary
-    }).catch((err) => console.error("[Email alert failed]", err));
+
+    // ✅ Awaited so Vercel doesn't kill it before Brevo responds
+    try {
+      await sendStoryAlert({
+        name:      String(name),
+        email:     String(email || ""),
+        title:     String(title),
+        mission:   String(mission),
+        narrative: String(narrative),
+        media:     mediaUrls, // ← full media array with Cloudinary URLs
+      });
+    } catch (emailErr) {
+      // Email failure must not fail the whole submission
+      console.error("[Email alert failed]", emailErr);
+    }
 
     return NextResponse.json({ success: true, data: newStory }, { status: 201 });
   } catch (error: any) {
