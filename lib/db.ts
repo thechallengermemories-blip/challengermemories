@@ -14,30 +14,39 @@ export const connectDB = async () => {
 };
 
 const storySchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String },
-  title: { type: String, required: true },
+  name:      { type: String, required: true },
+  email:     { type: String },
+  title:     { type: String, required: true },
   narrative: { type: String, required: true },
-  mission: { type: String, enum: ["challenger", "columbia"], required: true },
-  imageUrl: { type: String },
-  category: { 
-    type: String, 
+  mission:   { type: String, enum: ["challenger", "columbia"], required: true },
+  imageUrl:  { type: String },          // legacy — first image URL
+
+  // ✅ Add this
+  media: [
+    {
+      url:  { type: String, required: true },
+      type: { type: String, enum: ["image", "video"], required: true },
+    },
+  ],
+
+  category: {
+    type: String,
     enum: ["public", "heritage"],
-    default: "public" 
+    default: "public",
   },
-  relation: { 
-    type: String, 
+  relation: {
+    type: String,
     enum: ["immediate-family", "friend", "colleague", "public-observer"],
-    default: "public-observer"
+    default: "public-observer",
   },
   isVerified: { type: Boolean, default: false },
   isFeatured: { type: Boolean, default: false },
   status: {
     type: String,
     enum: ["pending", "published", "archived"],
-    default: "pending"
+    default: "pending",
   },
   createdAt: { type: Date, default: Date.now },
 });
-
+delete (mongoose.models as any).Story; // bust cache so schema changes apply
 export const Story = mongoose.models.Story || mongoose.model("Story", storySchema);
