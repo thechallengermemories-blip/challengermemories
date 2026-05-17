@@ -153,7 +153,7 @@ export async function sendStoryAlert(story: {
             <p style="margin:0 0 20px;font-size:13px;color:#64748b">
               Review and approve this submission from your admin dashboard.
             </p>
-            <a href="https://your-admin-url.vercel.app"
+            <a href="https://challengerdashboard.vercel.app"
                style="display:inline-block;background:${missionColor};color:#ffffff;
                       text-decoration:none;font-size:14px;font-weight:700;
                       letter-spacing:0.04em;padding:14px 32px;border-radius:10px">
