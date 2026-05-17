@@ -1,4 +1,9 @@
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 type MediaItem = { url: string; type: "image" | "video" };
+
 export async function sendStoryAlert(story: {
   name: string;
   email?: string;
@@ -68,7 +73,6 @@ export async function sendStoryAlert(story: {
       <!-- ── BODY CARD ── -->
       <tr><td style="background:#ffffff;padding:0">
 
-        <!-- Mission badge -->
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
           <tr><td style="padding:28px 40px 0">
             <span style="display:inline-block;background:${missionBg};color:${missionColor};
@@ -79,23 +83,19 @@ export async function sendStoryAlert(story: {
             </span>
           </td></tr>
 
-          <!-- Title -->
           <tr><td style="padding:16px 40px 24px">
             <h2 style="margin:0;font-size:26px;font-weight:700;color:#0f172a;line-height:1.25">
               ${story.title}
             </h2>
           </td></tr>
 
-          <!-- Divider -->
           <tr><td style="padding:0 40px">
             <div style="height:1px;background:#e2e8f0"></div>
           </td></tr>
 
-          <!-- Author details -->
           <tr><td style="padding:24px 40px">
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               <tr>
-                <!-- Avatar -->
                 <td style="vertical-align:top;width:52px">
                   <div style="width:44px;height:44px;border-radius:50%;
                               background:${missionBg};border:2px solid ${missionBorder};
@@ -104,7 +104,6 @@ export async function sendStoryAlert(story: {
                     ${story.name.charAt(0).toUpperCase()}
                   </div>
                 </td>
-                <!-- Name + email -->
                 <td style="vertical-align:top;padding-left:12px">
                   <p style="margin:0;font-size:16px;font-weight:700;color:#0f172a">
                     ${story.name}
@@ -113,7 +112,6 @@ export async function sendStoryAlert(story: {
                     ${story.email || "No email provided"}
                   </p>
                 </td>
-                <!-- Date -->
                 <td style="vertical-align:top;text-align:right">
                   <p style="margin:0;font-size:12px;color:#94a3b8">
                     ${new Date().toLocaleDateString("en-US", { month:"long", day:"numeric", year:"numeric" })}
@@ -123,12 +121,10 @@ export async function sendStoryAlert(story: {
             </table>
           </td></tr>
 
-          <!-- Divider -->
           <tr><td style="padding:0 40px">
             <div style="height:1px;background:#e2e8f0"></div>
           </td></tr>
 
-          <!-- Narrative -->
           <tr><td style="padding:24px 40px">
             <p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:0.12em;
                       text-transform:uppercase;color:#94a3b8">The Narrative</p>
@@ -142,21 +138,17 @@ export async function sendStoryAlert(story: {
             </div>
           </td></tr>
 
-          <!-- Divider -->
           ${story.media.length > 0 ? `
           <tr><td style="padding:0 40px">
             <div style="height:1px;background:#e2e8f0"></div>
           </td></tr>` : ""}
 
-          <!-- Media -->
           ${mediaSection}
 
-          <!-- Divider -->
           <tr><td style="padding:0 40px">
             <div style="height:1px;background:#e2e8f0"></div>
           </td></tr>
 
-          <!-- CTA -->
           <tr><td style="padding:28px 40px 36px;text-align:center">
             <p style="margin:0 0 20px;font-size:13px;color:#64748b">
               Review and approve this submission from your admin dashboard.
@@ -188,17 +180,15 @@ export async function sendStoryAlert(story: {
 </body>
 </html>`;
 
-  await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST",
-    headers: {
-      "api-key": process.env.BREVO_API_KEY!,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      sender: { name: "Eternal Mission", email: "vjoshii822@gmail.com" },
-      to: [{ email: "thechallengermemories@gmail.com", name: "Vivek" }],
-      subject: `🚀 New Story — "${story.title}" awaits review`,
-      htmlContent: html,
-    }),
+  // ── Resend replaces Brevo from here ──
+  const { error } = await resend.emails.send({
+    from: "Eternal Mission <onboarding@resend.dev>",
+    to: ["thechallengermemories@gmail.com"],
+    subject: `🚀 New Story — "${story.title}" awaits review`,
+    html,
   });
+
+  if (error) {
+    throw new Error(`Resend error: ${error.message}`);
+  }
 }
