@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 const CREW = [
@@ -61,10 +61,6 @@ const CREW = [
   },
 ];
 
-// Card dimensions
-const CARD_W = 300;
-const CARD_GAP = 28;
-const CARD_STRIDE = CARD_W + CARD_GAP;
 const N = CREW.length;
 
 // Stars generated once
@@ -76,21 +72,27 @@ const STARS = Array.from({ length: 90 }, (_, i) => ({
   opacity: 0.06 + (i % 5) * 0.04,
 }));
 
-const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
+interface CrewCardProps {
+  member: typeof CREW[0];
+  i: number;
+  cardW: number;
+  cardGap: number;
+  isMobile: boolean;
+}
+
+const CrewCard = ({ member, i, cardW, cardGap, isMobile }: CrewCardProps) => {
   return (
     <div
       className={`shrink-0 relative rounded-lg overflow-hidden group cursor-default
         ${i % 2 === 0 ? "translate-y-3" : "-translate-y-3"}`}
       style={{
-        width: `${CARD_W}px`,
-        height: "470px",
+        width: `${cardW}px`,
+        height: isMobile ? "410px" : "470px",
         background: "rgba(10,10,15,0.7)",
         border: "1px solid rgba(255,255,255,0.06)",
         transition: "border-color 0.5s ease, transform 0.5s ease",
-        // Center first card at 50vw
-        marginLeft: i === 0 ? `calc(50vw - ${CARD_W / 2}px)` : undefined,
-        // Mirror margin for last card so it can be centered too
-        marginRight: i === N - 1 ? `calc(50vw - ${CARD_W / 2}px)` : undefined,
+        marginLeft: i === 0 ? `calc(50vw - ${cardW / 2}px)` : undefined,
+        marginRight: i === N - 1 ? `calc(50vw - ${cardW / 2}px)` : undefined,
       }}
     >
       <style>{`
@@ -105,7 +107,9 @@ const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
           opacity: 1;
         }
         .crew-card-${i}:hover .card-img-${i} {
-          transform: scale(1.05);
+          transform: scale(1.03) !important;
+          opacity: 1 !important;
+          filter: grayscale(0%) contrast(1.05) brightness(1.1) !important;
         }
         .crew-card-${i}:hover .card-warm-${i} {
           opacity: 1;
@@ -117,21 +121,23 @@ const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
 
       <div className={`crew-card-${i} absolute inset-0`}>
         {/* Photo */}
-        <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden bg-[#08080c]">
           <img
             src={member.img}
             alt={member.name}
             className={`card-img-${i} w-full h-full object-cover will-change-transform`}
             style={{
-              transition: "transform 0.8s ease",
-              filter: "grayscale(20%) contrast(1.05) brightness(0.92)",
+              transition: "transform 0.8s ease, filter 0.5s ease, opacity 0.5s ease",
+              filter: "grayscale(5%) contrast(1.02) brightness(1.02)",
+              opacity: 0.88,
             }}
           />
+          {/* Subtle gradient overlay to keep text legible while showing the image clearly */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(to top, rgba(8,8,12,0.97) 0%, rgba(8,8,12,0.55) 42%, rgba(8,8,12,0.08) 100%)",
+                "linear-gradient(to top, rgba(8,8,12,0.95) 0%, rgba(8,8,12,0.4) 35%, rgba(8,8,12,0.0) 75%)",
             }}
           />
           <div
@@ -179,7 +185,7 @@ const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
         <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
           <p
             style={{
-              fontSize: "9px",
+              fontSize: isMobile ? "8px" : "9px",
               fontFamily: "monospace",
               letterSpacing: "0.35em",
               textTransform: "uppercase",
@@ -192,7 +198,7 @@ const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
           <h4
             style={{
               fontFamily: "'Georgia', 'Times New Roman', serif",
-              fontSize: "22px",
+              fontSize: isMobile ? "18px" : "22px",
               fontWeight: 300,
               color: "rgba(255,255,255,0.95)",
               letterSpacing: "-0.01em",
@@ -216,7 +222,7 @@ const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
               style={{
                 fontFamily: "'Georgia', serif",
                 fontStyle: "italic",
-                fontSize: "12px",
+                fontSize: isMobile ? "11px" : "12px",
                 lineHeight: 1.7,
                 color: "rgba(255,255,255,0.38)",
                 marginTop: "10px",
@@ -244,6 +250,21 @@ const CrewCard = ({ member, i }: { member: typeof CREW[0]; i: number }) => {
 
 export const ChallengerMission = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const cardW = isMobile ? 260 : 300;
+  const cardGap = isMobile ? 18 : 28;
+  const cardStride = cardW + cardGap;
+  const totalShift = (N - 1) * cardStride;
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -261,9 +282,6 @@ export const ChallengerMission = () => {
   const heroY = useTransform(scrollYProgress, [0, 0.1], [0, -50]);
 
   const galleryOpacity = useTransform(scrollYProgress, [0.08, 0.17], [0, 1]);
-
-  // Scroll from 0 to -(N-1 cards) pixels
-  const totalShift = (N - 1) * CARD_STRIDE;
   const galleryX = useTransform(smooth, [0.12, 0.92], [0, -totalShift]);
 
   const trackWidth = useTransform(smooth, [0.12, 0.92], ["0%", "100%"]);
@@ -272,8 +290,8 @@ export const ChallengerMission = () => {
     <div
       ref={containerRef}
       style={{
-        height: "500vh",
-        background: "#020617", // Changed from #060608 to match the other components
+        height: isMobile ? "750vh" : "500vh",
+        background: "#020617",
         color: "white",
         position: "relative",
         fontFamily: "'Georgia', 'Times New Roman', serif",
@@ -281,7 +299,7 @@ export const ChallengerMission = () => {
         overflow: "clip",
       }}
     >
-      {/* Background Glows to match the site-wide theme */}
+      {/* Background Glows */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-sky-500/5 blur-[150px] rounded-full" />
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 blur-[150px] rounded-full" />
@@ -296,7 +314,7 @@ export const ChallengerMission = () => {
             style={{
               width: s.size,
               height: s.size,
-              top: s.top, 
+              top: s.top,
               left: s.left,
               opacity: s.opacity,
             }}
@@ -309,7 +327,7 @@ export const ChallengerMission = () => {
         className="absolute inset-0 pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse 90% 70% at 50% 35%, transparent 30%, rgba(2,6,23,0.75) 100%)", // Changed RGBA base to match #020617
+            "radial-gradient(ellipse 90% 70% at 50% 35%, transparent 30%, rgba(2,6,23,0.75) 100%)",
         }}
       />
 
@@ -329,7 +347,7 @@ export const ChallengerMission = () => {
         {/* Corner reticles */}
         <div
           className="absolute pointer-events-none z-20"
-          style={{ inset: "2.5rem" }}
+          style={{ inset: isMobile ? "1.5rem" : "2.5rem" }}
         >
           {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
             "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
@@ -363,7 +381,10 @@ export const ChallengerMission = () => {
             y: heroY,
             zIndex: 10,
             position: "absolute",
-            inset: 0,
+            top: isMobile ? "64px" : "80px",
+            bottom: 0,
+            left: 0,
+            right: 0,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -373,18 +394,26 @@ export const ChallengerMission = () => {
             pointerEvents: "none",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}
+          >
             <div style={{ height: "1px", width: "48px", background: "linear-gradient(to right, transparent, rgba(255,210,120,0.35))" }} />
             <span style={{ fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.55em", textTransform: "uppercase", color: "rgba(255,210,120,0.5)" }}>
               In Memoriam · STS-51-L
             </span>
             <div style={{ height: "1px", width: "48px", background: "linear-gradient(to left, transparent, rgba(255,210,120,0.35))" }} />
-          </div>
+          </motion.div>
 
-          <h1
+          <motion.h1
+            initial={{ opacity: 0, y: 35, filter: "blur(4px)" }}
+            animate={{ opacity: 0.95, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
             style={{
               fontFamily: "'Georgia', serif",
-              fontSize: "clamp(4rem, 12vw, 11rem)",
+              fontSize: "clamp(3.5rem, 12vw, 11rem)",
               fontWeight: 900,
               letterSpacing: "-0.035em",
               lineHeight: 1,
@@ -393,35 +422,53 @@ export const ChallengerMission = () => {
             }}
           >
             CHALLENGER
-          </h1>
+          </motion.h1>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 0.6 }}
+            style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}
+          >
             <span style={{ height: "1px", width: "28px", background: "rgba(255,255,255,0.08)" }} />
             <span style={{ fontFamily: "monospace", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.18)" }}>
               SEVEN WHO DARED
             </span>
             <span style={{ height: "1px", width: "28px", background: "rgba(255,255,255,0.08)" }} />
-          </div>
+          </motion.div>
 
-          <p
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 0.35, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
             style={{
               marginTop: "32px",
               maxWidth: "440px",
               fontSize: "14px",
               lineHeight: 1.85,
               fontStyle: "italic",
-              color: "rgba(255,255,255,0.35)",
+              color: "rgba(255,255,255,0.95)",
               fontFamily: "'Georgia', serif",
             }}
           >
             "They had a hunger to explore the universe and discover its truths.
             They wished, as we all do, to be part of something larger than themselves."
-          </p>
-          <p style={{ fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.25em", color: "rgba(255,255,255,0.15)", marginTop: "8px" }}>
+          </motion.p>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.15 }}
+            transition={{ duration: 1.2, delay: 1.1 }}
+            style={{ fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.25em", color: "rgba(255,255,255,0.95)", marginTop: "8px" }}
+          >
             — PRESIDENT REAGAN · JANUARY 28, 1986
-          </p>
+          </motion.p>
 
-          <div style={{ marginTop: "48px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 1.4 }}
+            style={{ marginTop: "48px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}
+          >
             <span style={{ fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.3em", color: "rgba(255,255,255,0.18)", textTransform: "uppercase" }}>
               Scroll to remember the crew
             </span>
@@ -430,7 +477,7 @@ export const ChallengerMission = () => {
               transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
               style={{ width: "1px", height: "32px", background: "linear-gradient(to bottom, rgba(255,255,255,0.2), transparent)" }}
             />
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* ── GALLERY ── */}
@@ -449,13 +496,20 @@ export const ChallengerMission = () => {
             style={{
               x: galleryX,
               display: "flex",
-              gap: `${CARD_GAP}px`,
+              gap: `${cardGap}px`,
               willChange: "transform",
               pointerEvents: "auto",
             }}
           >
             {CREW.map((member, i) => (
-              <CrewCard key={i} member={member} i={i} />
+              <CrewCard 
+                key={i} 
+                member={member} 
+                i={i} 
+                cardW={cardW} 
+                cardGap={cardGap} 
+                isMobile={isMobile} 
+              />
             ))}
           </motion.div>
         </motion.div>
@@ -464,9 +518,9 @@ export const ChallengerMission = () => {
         <div
           style={{
             position: "absolute",
-            bottom: "2rem",
-            left: "2.5rem",
-            right: "2.5rem",
+            bottom: isMobile ? "1.5rem" : "2rem",
+            left: isMobile ? "1.5rem" : "2.5rem",
+            right: isMobile ? "1.5rem" : "2.5rem",
             zIndex: 20,
             display: "flex",
             justifyContent: "space-between",
@@ -480,7 +534,7 @@ export const ChallengerMission = () => {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.15)" }}>
               <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "rgba(255,210,120,0.5)" }} />
-              SEVEN SOULS · FOREVER IN OUR HEARTS
+              {isMobile ? "SEVEN SOULS" : "SEVEN SOULS · FOREVER IN OUR HEARTS"}
             </div>
           </div>
 
