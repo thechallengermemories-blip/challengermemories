@@ -296,7 +296,7 @@ export const ChallengerMission = () => {
             style={{
               width: s.size,
               height: s.size,
-              top: s.top,
+              top: s.top, 
               left: s.left,
               opacity: s.opacity,
             }}
