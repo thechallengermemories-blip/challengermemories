@@ -1,6 +1,7 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import React, { useState } from "react";
+import { motion, Variants } from "framer-motion";
+import { Crosshair, Globe, Database } from "lucide-react";
 
 const CREW = [
   {
@@ -61,505 +62,263 @@ const CREW = [
   },
 ];
 
-const N = CREW.length;
-
-// Stars generated once
-const STARS = Array.from({ length: 90 }, (_, i) => ({
+const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
   top: `${(i * 17.3) % 100}%`,
-  left: `${(i * 31.7) % 100}%`,
+  left: `${(i * 27.1) % 100}%`,
   size: i % 7 === 0 ? 2 : 1,
-  opacity: 0.06 + (i % 5) * 0.04,
+  opacity: 0.05 + (i % 5) * 0.03,
 }));
 
-interface CrewCardProps {
-  member: typeof CREW[0];
-  i: number;
-  cardW: number;
-  cardGap: number;
-  isMobile: boolean;
-}
+export function HeroSection() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-const CrewCard = ({ member, i, cardW, cardGap, isMobile }: CrewCardProps) => {
-  return (
-    <div
-      className={`shrink-0 relative rounded-lg overflow-hidden group cursor-default
-        ${i % 2 === 0 ? "translate-y-3" : "-translate-y-3"}`}
-      style={{
-        width: `${cardW}px`,
-        height: isMobile ? "410px" : "470px",
-        background: "rgba(10,10,15,0.7)",
-        border: "1px solid rgba(255,255,255,0.06)",
-        transition: "border-color 0.5s ease, transform 0.5s ease",
-        marginLeft: i === 0 ? `calc(50vw - ${cardW / 2}px)` : undefined,
-        marginRight: i === N - 1 ? `calc(50vw - ${cardW / 2}px)` : undefined,
-      }}
-    >
-      <style>{`
-        .crew-card-${i}:hover {
-          border-color: rgba(255, 210, 120, 0.22) !important;
-        }
-        .crew-card-${i}:hover .card-bio-${i} {
-          max-height: 64px;
-          opacity: 1;
-        }
-        .crew-card-${i}:hover .card-divider-${i} {
-          opacity: 1;
-        }
-        .crew-card-${i}:hover .card-img-${i} {
-          transform: scale(1.03) !important;
-          opacity: 1 !important;
-          filter: grayscale(0%) contrast(1.05) brightness(1.1) !important;
-        }
-        .crew-card-${i}:hover .card-warm-${i} {
-          opacity: 1;
-        }
-        .crew-card-${i}:hover .card-top-meta-${i} {
-          opacity: 0.9;
-        }
-      `}</style>
+  // Native mouse move capture for lag-free background parallax shift
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const { clientX, clientY, currentTarget } = e;
+    const { width, height } = currentTarget.getBoundingClientRect();
+    const x = (clientX / width - 0.5) * 16; // Slight responsive shift
+    const y = (clientY / height - 0.5) * 16;
+    setMousePos({ x, y });
+  };
 
-      <div className={`crew-card-${i} absolute inset-0`}>
-        {/* Photo */}
-        <div className="absolute inset-0 overflow-hidden bg-[#08080c]">
-          <img
-            src={member.img}
-            alt={member.name}
-            className={`card-img-${i} w-full h-full object-cover will-change-transform`}
-            style={{
-              transition: "transform 0.8s ease, filter 0.5s ease, opacity 0.5s ease",
-              filter: "grayscale(5%) contrast(1.02) brightness(1.02)",
-              opacity: 0.88,
-            }}
-          />
-          {/* Subtle gradient overlay to keep text legible while showing the image clearly */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(to top, rgba(8,8,12,0.95) 0%, rgba(8,8,12,0.4) 35%, rgba(8,8,12,0.0) 75%)",
-            }}
-          />
-          <div
-            className={`card-warm-${i} absolute inset-0 opacity-0`}
-            style={{
-              transition: "opacity 0.6s ease",
-              background:
-                "linear-gradient(160deg, rgba(255,180,60,0.08) 0%, transparent 60%)",
-            }}
-          />
-        </div>
+  // Lens-Focus Animation Variants
+  const focusTitleVariants: Variants = {
+    hidden: { 
+      opacity: 0, 
+      letterSpacing: "0.22em", 
+      filter: "blur(15px)", 
+      scale: 0.96 
+    },
+    visible: {
+      opacity: 0.95,
+      letterSpacing: "-0.015em",
+      filter: "blur(0px)",
+      scale: 1,
+      transition: {
+        duration: 1.8,
+        ease: [0.16, 1, 0.3, 1], // Cinematic smooth ease-out
+      }
+    }
+  };
 
-        {/* Top badge */}
-        <div
-          className={`card-top-meta-${i} absolute top-4 left-4 right-4 flex justify-between items-start z-10`}
-          style={{ opacity: 0.3, transition: "opacity 0.4s ease" }}
-        >
-          <span
-            style={{
-              fontSize: "9px",
-              fontFamily: "monospace",
-              letterSpacing: "0.2em",
-              color: "rgba(255,210,120,0.85)",
-              background: "rgba(0,0,0,0.55)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              padding: "3px 8px",
-              borderRadius: "3px",
-            }}
-          >
-            {member.id}
-          </span>
-          <span
-            style={{
-              fontSize: "9px",
-              fontFamily: "monospace",
-              letterSpacing: "0.15em",
-              color: "rgba(255,255,255,0.25)",
-            }}
-          >
-            {member.seat} / 07
-          </span>
-        </div>
-
-        {/* Bottom info */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-          <p
-            style={{
-              fontSize: isMobile ? "8px" : "9px",
-              fontFamily: "monospace",
-              letterSpacing: "0.35em",
-              textTransform: "uppercase",
-              color: "rgba(255,210,120,0.65)",
-              marginBottom: "4px",
-            }}
-          >
-            {member.role}
-          </p>
-          <h4
-            style={{
-              fontFamily: "'Georgia', 'Times New Roman', serif",
-              fontSize: isMobile ? "18px" : "22px",
-              fontWeight: 300,
-              color: "rgba(255,255,255,0.95)",
-              letterSpacing: "-0.01em",
-              lineHeight: 1.2,
-              margin: 0,
-            }}
-          >
-            {member.name}
-          </h4>
-
-          <div
-            className={`card-bio-${i}`}
-            style={{
-              maxHeight: 0,
-              opacity: 0,
-              overflow: "hidden",
-              transition: "max-height 0.5s ease, opacity 0.5s ease",
-            }}
-          >
-            <p
-              style={{
-                fontFamily: "'Georgia', serif",
-                fontStyle: "italic",
-                fontSize: isMobile ? "11px" : "12px",
-                lineHeight: 1.7,
-                color: "rgba(255,255,255,0.38)",
-                marginTop: "10px",
-              }}
-            >
-              {member.bio}
-            </p>
-          </div>
-
-          <div
-            className={`card-divider-${i}`}
-            style={{
-              marginTop: "14px",
-              height: "1px",
-              background: "linear-gradient(to right, rgba(255,210,120,0.35), transparent)",
-              opacity: 0,
-              transition: "opacity 0.5s ease",
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const ChallengerMission = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const cardW = isMobile ? 260 : 300;
-  const cardGap = isMobile ? 18 : 28;
-  const cardStride = cardW + cardGap;
-  const totalShift = (N - 1) * cardStride;
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  const smooth = useSpring(scrollYProgress, {
-    stiffness: 65,
-    damping: 20,
-    restDelta: 0.001,
-  });
-
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.93]);
-  const heroY = useTransform(scrollYProgress, [0, 0.1], [0, -50]);
-
-  const galleryOpacity = useTransform(scrollYProgress, [0.08, 0.17], [0, 1]);
-  const galleryX = useTransform(smooth, [0.12, 0.92], [0, -totalShift]);
-
-  const trackWidth = useTransform(smooth, [0.12, 0.92], ["0%", "100%"]);
+  const lineVariants: Variants = {
+    hidden: { pathLength: 0, opacity: 0 },
+    visible: { 
+      pathLength: 1, 
+      opacity: 1,
+      transition: { duration: 2.2, ease: "easeInOut", delay: 0.2 }
+    }
+  };
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        height: isMobile ? "750vh" : "500vh",
-        background: "#020617",
-        color: "white",
-        position: "relative",
-        fontFamily: "'Georgia', 'Times New Roman', serif",
-        userSelect: "none",
-        overflow: "clip",
-      }}
+    <section 
+      onMouseMove={handleMouseMove}
+      className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none"
     >
-      {/* Background Glows */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-sky-500/5 blur-[150px] rounded-full" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-purple-500/5 blur-[150px] rounded-full" />
-      </div>
-
-      {/* Stars */}
+      
+      {/* 1. Deep Space Atmosphere with Slow Starfield */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {STARS.map((s) => (
+        <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-sky-500/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-purple-500/5 blur-[120px] rounded-full" />
+        
+        {STARS.map((star) => (
           <div
-            key={s.id}
+            key={star.id}
             className="absolute rounded-full bg-white"
             style={{
-              width: s.size,
-              height: s.size,
-              top: s.top,
-              left: s.left,
-              opacity: s.opacity,
+              width: star.size,
+              height: star.size,
+              top: star.top,
+              left: star.left,
+              opacity: star.opacity,
             }}
           />
         ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/90" />
       </div>
 
-      {/* Vignette */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
+      {/* 2. Interactive SVG Celestial Telemetry Grid (Parallax Enabled) */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center transition-transform duration-500 ease-out"
         style={{
-          background:
-            "radial-gradient(ellipse 90% 70% at 50% 35%, transparent 30%, rgba(2,6,23,0.75) 100%)",
-        }}
-      />
-
-      {/* Sticky scene */}
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          height: "100vh",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
+          transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
         }}
       >
-        {/* Corner reticles */}
-        <div
-          className="absolute pointer-events-none z-20"
-          style={{ inset: isMobile ? "1.5rem" : "2.5rem" }}
-        >
-          {["top-0 left-0 border-t border-l", "top-0 right-0 border-t border-r",
-            "bottom-0 left-0 border-b border-l", "bottom-0 right-0 border-b border-r"].map((cls, i) => (
-            <div
-              key={i}
-              className={`absolute w-4 h-4 ${cls}`}
-              style={{ borderColor: "rgba(255,255,255,0.08)" }}
-            />
-          ))}
-          <div
-            className="absolute left-5 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-5 text-[8px] font-mono tracking-widest [writing-mode:vertical-lr]"
-            style={{ color: "rgba(255,255,255,0.12)" }}
-          >
-            <span>KSC · LC-39B · 28.572°N 80.648°W</span>
-            <span>T+00:00:00 · 28 JANUARY 1986</span>
-          </div>
-          <div
-            className="absolute right-5 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-5 text-[8px] font-mono tracking-widest [writing-mode:vertical-lr]"
-            style={{ color: "rgba(255,255,255,0.12)" }}
-          >
-            <span>MISSION STS-51-L</span>
-            <span>VEHICLE OV-099</span>
-          </div>
-        </div>
-
-        {/* ── HERO ── */}
-        <motion.div
-          style={{
-            opacity: heroOpacity,
-            scale: heroScale,
-            y: heroY,
-            zIndex: 10,
-            position: "absolute",
-            top: isMobile ? "64px" : "80px",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-            padding: "0 24px",
-            pointerEvents: "none",
-          }}
-        >
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}
-          >
-            <div style={{ height: "1px", width: "48px", background: "linear-gradient(to right, transparent, rgba(255,210,120,0.35))" }} />
-            <span style={{ fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.55em", textTransform: "uppercase", color: "rgba(255,210,120,0.5)" }}>
-              In Memoriam · STS-51-L
-            </span>
-            <div style={{ height: "1px", width: "48px", background: "linear-gradient(to left, transparent, rgba(255,210,120,0.35))" }} />
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 35, filter: "blur(4px)" }}
-            animate={{ opacity: 0.95, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            style={{
-              fontFamily: "'Georgia', serif",
-              fontSize: "clamp(3.5rem, 12vw, 11rem)",
-              fontWeight: 900,
-              letterSpacing: "-0.035em",
-              lineHeight: 1,
-              color: "rgba(255,255,255,0.95)",
-              margin: 0,
-            }}
-          >
-            CHALLENGER
-          </motion.h1>
-
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 0.6 }}
-            style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "10px" }}
-          >
-            <span style={{ height: "1px", width: "28px", background: "rgba(255,255,255,0.08)" }} />
-            <span style={{ fontFamily: "monospace", fontSize: "10px", letterSpacing: "0.4em", color: "rgba(255,255,255,0.18)" }}>
-              SEVEN WHO DARED
-            </span>
-            <span style={{ height: "1px", width: "28px", background: "rgba(255,255,255,0.08)" }} />
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 0.35, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-            style={{
-              marginTop: "32px",
-              maxWidth: "440px",
-              fontSize: "14px",
-              lineHeight: 1.85,
-              fontStyle: "italic",
-              color: "rgba(255,255,255,0.95)",
-              fontFamily: "'Georgia', serif",
-            }}
-          >
-            "They had a hunger to explore the universe and discover its truths.
-            They wished, as we all do, to be part of something larger than themselves."
-          </motion.p>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.15 }}
-            transition={{ duration: 1.2, delay: 1.1 }}
-            style={{ fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.25em", color: "rgba(255,255,255,0.95)", marginTop: "8px" }}
-          >
-            — PRESIDENT REAGAN · JANUARY 28, 1986
-          </motion.p>
-
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 1.4 }}
-            style={{ marginTop: "48px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}
-          >
-            <span style={{ fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.3em", color: "rgba(255,255,255,0.18)", textTransform: "uppercase" }}>
-              Scroll to remember the crew
-            </span>
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-              style={{ width: "1px", height: "32px", background: "linear-gradient(to bottom, rgba(255,255,255,0.2), transparent)" }}
-            />
-          </motion.div>
-        </motion.div>
-
-        {/* ── GALLERY ── */}
-        <motion.div
-          style={{
-            opacity: galleryOpacity,
-            zIndex: 5,
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            pointerEvents: "none",
-          }}
-        >
-          <motion.div
-            style={{
-              x: galleryX,
-              display: "flex",
-              gap: `${cardGap}px`,
-              willChange: "transform",
-              pointerEvents: "auto",
-            }}
-          >
-            {CREW.map((member, i) => (
-              <CrewCard 
-                key={i} 
-                member={member} 
-                i={i} 
-                cardW={cardW} 
-                cardGap={cardGap} 
-                isMobile={isMobile} 
-              />
-            ))}
-          </motion.div>
-        </motion.div>
-
-        {/* ── BOTTOM BAR ── */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: isMobile ? "1.5rem" : "2rem",
-            left: isMobile ? "1.5rem" : "2.5rem",
-            right: isMobile ? "1.5rem" : "2.5rem",
-            zIndex: 20,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            pointerEvents: "none",
-          }}
-        >
-          <div>
-            <div style={{ fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.3em", color: "rgba(255,255,255,0.18)", marginBottom: "4px" }}>
-              CREW MEMORIAL · STS-51-L
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontFamily: "monospace", fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.15)" }}>
-              <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: "rgba(255,210,120,0.5)" }} />
-              {isMobile ? "SEVEN SOULS" : "SEVEN SOULS · FOREVER IN OUR HEARTS"}
-            </div>
-          </div>
-
-          <div style={{ width: "200px", display: "none" }} className="md:block" id="progress-container">
-            <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: "8px", color: "rgba(255,255,255,0.15)", marginBottom: "6px" }}>
-              <span>SCOBEE</span>
-              <span>McAULIFFE</span>
-            </div>
-            <div style={{ height: "1px", width: "200px", background: "rgba(255,255,255,0.06)", position: "relative" }}>
-              <motion.div
-                style={{
-                  width: trackWidth,
-                  height: "100%",
-                  background: "rgba(255,210,120,0.45)",
-                  position: "absolute",
-                  left: 0,
-                  top: 0,
-                  willChange: "width",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
+        <svg className="w-[600px] h-[600px] md:w-[700px] md:h-[700px] text-sky-500/5" viewBox="0 0 400 400">
+          {/* Inner compass orbits */}
+          <motion.circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 6" variants={lineVariants} initial="hidden" animate="visible" />
+          <motion.circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeWidth="0.5" variants={lineVariants} initial="hidden" animate="visible" />
+          <motion.circle cx="200" cy="200" r="80" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="6 3" variants={lineVariants} initial="hidden" animate="visible" />
+          
+          {/* Intersection crosshair lines */}
+          <motion.line x1="200" y1="0" x2="200" y2="400" stroke="currentColor" strokeWidth="0.5" variants={lineVariants} initial="hidden" animate="visible" />
+          <motion.line x1="0" y1="200" x2="400" y2="200" stroke="currentColor" strokeWidth="0.5" variants={lineVariants} initial="hidden" animate="visible" />
+          
+          {/* Dynamic pulsing orbital memory nodes */}
+          <g className="text-sky-400">
+            <circle cx="340" cy="200" r="2.5" fill="currentColor" className="animate-ping [animation-duration:3s]" />
+            <circle cx="340" cy="200" r="1.5" fill="currentColor" />
+            <circle cx="98" cy="110" r="2.5" fill="currentColor" className="animate-ping [animation-duration:4s]" />
+            <circle cx="98" cy="110" r="1.5" fill="currentColor" />
+            <circle cx="260" cy="320" r="2" fill="currentColor" />
+          </g>
+        </svg>
       </div>
-    </div>
+
+      {/* 3. Archival Layout Frame Borders */}
+      <div className="absolute inset-6 md:inset-8 pointer-events-none z-10 border border-white/[0.02]">
+        <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-white/10" />
+        <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/10" />
+        <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-white/10" />
+        <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-white/10" />
+
+        {/* Fine Architectural Sidebar Coordinates (Desktop) */}
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6 text-[8px] font-mono tracking-[0.3em] uppercase text-slate-500/60 [writing-mode:vertical-lr]">
+          <div className="flex items-center gap-2">
+            <Crosshair size={8} className="text-sky-400/50" />
+            <span>KSC · LC-39B · 28.572° N 80.648° W</span>
+          </div>
+          <span>LAUNCH SYSTEM: OV-099</span>
+        </div>
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6 text-[8px] font-mono tracking-[0.3em] uppercase text-slate-500/60 [writing-mode:vertical-lr]">
+          <div className="flex items-center gap-2">
+            <Globe size={8} className="text-sky-400/50" />
+            <span>PUBLIC ARCHIVE SYSTEM</span>
+          </div>
+          <span>RECORDING TIMELINE: 1986 — 2026</span>
+        </div>
+      </div>
+
+      {/* 4. Upper Core Content */}
+      <div className="relative z-10 max-w-6xl mx-auto w-full pt-28 sm:pt-32 lg:pt-36 text-center flex flex-col items-center">
+        
+        {/* Archival Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex items-center gap-4 mb-8"
+        >
+          <div className="h-[1px] w-12 bg-sky-500/25" />
+          <span className="font-mono text-[9px] sm:text-xs uppercase tracking-[0.4em] text-sky-400/80 font-semibold flex items-center gap-2">
+            <Database size={10} className="text-sky-400/60" />
+            Preserving Shared Human Memory
+          </span>
+          <div className="h-[1px] w-12 bg-sky-500/25" />
+        </motion.div>
+
+        {/* Lens-Focus Shifting Heading */}
+        <motion.h1
+          variants={focusTitleVariants}
+          initial="hidden"
+          animate="visible"
+          className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white mb-6 select-text"
+          style={{ willChange: "filter, letter-spacing, transform, opacity" }}
+        >
+          Challenger Memories
+        </motion.h1>
+
+        {/* Narrative Description */}
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.6 }}
+          className="max-w-3xl text-sm sm:text-base md:text-lg text-slate-300 font-light leading-relaxed mb-8 select-text"
+        >
+          The Challenger mission became part of millions of lives — in classrooms, homes, workplaces, and conversations across generations. Some remember watching it live. Others grew up hearing the stories afterward. This project exists to preserve those human experiences and explore how history continues to shape people long after a moment has passed [1].
+        </motion.p>
+
+        {/* Call to Action Controls */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.7 }}
+          className="mt-4 flex flex-wrap justify-center gap-4 w-full"
+        >
+          <a
+            href="/share-story"
+            className="px-7 py-3 rounded-full bg-sky-500 text-white font-mono text-xs uppercase tracking-widest font-semibold hover:bg-sky-400 transition-all duration-300 shadow-[0_0_20px_rgba(14,165,233,0.25)] hover:shadow-[0_0_30px_rgba(14,165,233,0.4)]"
+          >
+            Share Your Story
+          </a>
+          <a
+            href="/stories"
+            className="px-7 py-3 rounded-full border border-white/10 bg-white/[0.02] text-slate-300 font-mono text-xs uppercase tracking-widest hover:bg-white/[0.07] hover:border-sky-500/30 hover:text-sky-400 transition-all duration-300"
+          >
+            Explore Memories
+          </a>
+        </motion.div>
+      </div>
+
+      {/* 5. The Unified Crew Grid (Zero-Lag CSS Sibling Dimming) */}
+      <div className="relative z-10 max-w-7xl mx-auto w-full mt-16 lg:mt-24 mb-4">
+        
+        <div className="flex flex-col items-center mb-8">
+          <p className="font-mono text-[9px] tracking-[0.3em] text-slate-500 uppercase">
+            In Remembrance of the STS-51-L Crew
+          </p>
+          <div className="w-12 h-[1px] bg-sky-500/30 mt-2" />
+        </div>
+
+        {/* 
+          Using parent hover trigger ("group/container").
+          When hovering over the grid, all crew members dim to opacity 40%, 
+          while the specific hovered card overrides this via native CSS to animate to scale and opacity 100%.
+        */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full group/container">
+          {CREW.map((member) => (
+            <div
+              key={member.id}
+              className="relative aspect-[3/4] rounded-2xl bg-slate-900 border border-white/10 overflow-hidden group/card transition-all duration-500 ease-out hover:border-sky-500/40 hover:-translate-y-1.5 hover:shadow-[0_0_35px_rgba(56,189,248,0.18)] hover:!opacity-100 group-hover/container:opacity-40"
+            >
+              {/* Card Image and Gradients */}
+              <div className="absolute inset-0 overflow-hidden bg-slate-950">
+                <img
+                  src={member.img}
+                  alt={member.name}
+                  className="w-full h-full object-cover select-none grayscale-[40%] transition-all duration-700 ease-out group-hover/card:grayscale-0 group-hover/card:scale-105 opacity-60 group-hover/card:opacity-85"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-slate-950/40 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/30 via-transparent to-transparent z-10" />
+                
+                {/* Slow interactive overlay gradient inside card on hover */}
+                <div className="absolute inset-0 bg-gradient-to-t from-sky-950/20 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+              </div>
+
+              {/* Individual Badges */}
+              <div className="absolute top-3 left-3 right-3 flex justify-between items-center z-20 opacity-50 group-hover/card:opacity-100 transition-opacity duration-300">
+                <span className="font-mono text-[8px] bg-black/40 px-2 py-0.5 rounded border border-white/10 text-sky-400 font-medium tracking-wider">
+                  {member.id}
+                </span>
+                <span className="font-mono text-[8px] text-slate-400">
+                  {member.seat}
+                </span>
+              </div>
+
+              {/* Bio & Details Slide-Up (No layout-shifting, 100% smooth GPU-bound CSS transition) */}
+              <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end min-h-[95px] bg-gradient-to-t from-[#020617] via-[#020617]/95 to-transparent z-20">
+                <p className="font-mono text-[8px] tracking-widest text-sky-400 uppercase mb-1">
+                  {member.role}
+                </p>
+                <h3 className="font-serif text-sm sm:text-base font-light text-white leading-tight">
+                  {member.name.split(" ").slice(-1)[0]}
+                  <span className="hidden group-hover/card:inline text-white/90">
+                    , {member.name.split(" ").slice(0, -1).join(" ")}
+                  </span>
+                </h3>
+
+                <div className="h-0 group-hover/card:h-12 overflow-hidden transition-all duration-500 ease-out opacity-0 group-hover/card:opacity-100">
+                  <p className="font-serif text-[10px] text-slate-400 italic leading-snug pt-2">
+                    {member.bio}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </section>
   );
-};
+}

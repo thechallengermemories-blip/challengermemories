@@ -14,68 +14,34 @@ interface Story {
   readTime: string;
 }
 
-interface StoriesPreviewListProps {
-  mission: 'challenger' | 'columbia';
-}
+const MOCK_STORIES: Story[] = [
+  {
+    id: "1",
+    title: "The Day the Classroom Fell Silent",
+    preview: "I was in third grade, watching the grainy TV screen. Our teacher, Mrs. Gable, didn't say a word for an hour. It was the first time I realized how brave explorers truly are...",
+    author: "Sarah J. Miller",
+    date: "Oct 12, 2023",
+    readTime: "4 min read"
+  },
+  {
+    id: "2",
+    title: "A Letter to Christa McAuliffe",
+    preview: "You weren't just an astronaut; you were our teacher. Because of you, I spent thirty years in the classroom teaching my students to reach for the stars...",
+    author: "Robert Chen",
+    date: "Jan 28, 2024",
+    readTime: "6 min read"
+  },
+  {
+    id: "3",
+    title: "The Blue Suit in my Dreams",
+    preview: "My father worked on the SRB seals. The weight of that day stayed with our family, but so did the pride of what those seven souls stood for...",
+    author: "David Vance",
+    date: "Nov 05, 2023",
+    readTime: "3 min read"
+  }
+];
 
-const MOCK_STORIES: Record<'challenger' | 'columbia', Story[]> = {
-  challenger: [
-    {
-      id: "1",
-      title: "The Day the Classroom Fell Silent",
-      preview: "I was in third grade, watching the grainy TV screen. Our teacher, Mrs. Gable, didn't say a word for an hour. It was the first time I realized how brave explorers truly are...",
-      author: "Sarah J. Miller",
-      date: "Oct 12, 2023",
-      readTime: "4 min read"
-    },
-    {
-      id: "2",
-      title: "A Letter to Christa McAuliffe",
-      preview: "You weren't just an astronaut; you were our teacher. Because of you, I spent thirty years in the classroom teaching my students to reach for the stars...",
-      author: "Robert Chen",
-      date: "Jan 28, 2024",
-      readTime: "6 min read"
-    },
-    {
-      id: "3",
-      title: "The Blue Suit in my Dreams",
-      preview: "My father worked on the SRB seals. The weight of that day stayed with our family, but so did the pride of what those seven souls stood for...",
-      author: "David Vance",
-      date: "Nov 05, 2023",
-      readTime: "3 min read"
-    }
-  ],
-  columbia: [
-    {
-      id: "4",
-      title: "Watching the Texas Sky",
-      preview: "We saw the streaks of light across the morning sky in Tyler, Texas. We didn't know then that we were witnessing the end of an era, but we felt the loss in our hearts...",
-      author: "Elena Rodriguez",
-      date: "Feb 01, 2024",
-      readTime: "5 min read"
-    },
-    {
-      id: "5",
-      title: "The Legacy of Kalpana Chawla",
-      preview: "As a young girl in India, Kalpana was my hero. She proved that the stars belong to everyone, no matter where you start your journey...",
-      author: "Priya Sharma",
-      date: "Dec 15, 2023",
-      readTime: "4 min read"
-    },
-    {
-      id: "6",
-      title: "Sixteen Days of Science",
-      preview: "While the world remembers the end, I want to remember the sixteen days of incredible discovery the crew gifted to humanity in orbit...",
-      author: "Dr. Marcus Thorne",
-      date: "Jan 10, 2024",
-      readTime: "7 min read"
-    }
-  ]
-};
-
-const StoriesPreviewList = ({ mission }: StoriesPreviewListProps) => {
-  const stories = MOCK_STORIES[mission];
-
+const StoriesPreviewList = () => {
   return (
     <section className="py-24 px-4 bg-[#020617] relative overflow-hidden">
       {/* Background Decoration */}
@@ -103,7 +69,7 @@ const StoriesPreviewList = ({ mission }: StoriesPreviewListProps) => {
 
         {/* Stories Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {stories.map((story, index) => (
+          {MOCK_STORIES.map((story, index) => (
             <StoryCard key={story.id} story={story} index={index} />
           ))}
         </div>

@@ -1,8 +1,6 @@
 "use client";
-import React from 'react';
 import { motion } from 'framer-motion';
-import { PenLine, Rocket, Sparkles, Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { PenLine, Rocket, Star } from 'lucide-react';
 
 export const StoryPageHeader = () => {
   return (

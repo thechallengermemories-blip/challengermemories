@@ -1,27 +1,43 @@
-"use client"
-import React, { useState } from 'react'
-import { Navbar } from '@/components/layout/Navbar'
-import { StoryPageHeader } from '@/components/forms/StoryPageHeader'
-import { StoryForm } from '@/components/forms/StoryForm'
-import { StoryPageBackground } from '@/components/stories/StoryPageBackground'
-import { Footer } from '@/components/home/Footer'
+"use client";
 
-const ShareStoryPage = () => {
-    const [selectedMission, setSelectedMission] = useState<'challenger' | 'columbia'>('challenger');
+import { StoryPageHeader } from "@/components/share-story/storyHeader";
+import { StoryForm } from "@/components/share-story/storySubmissionForm";
+// import { StoryForm } from "@/components/forms/StoryForm";
+// import { StoryPageHeader } from "@/components/forms/StoryPageHeader";
+import React, { useState } from "react";
+// import { StoryPageHeader } from "./StoryPageHeader"; // Adjust paths accordingly
+// import { StoryForm } from "./StoryForm";
 
-    return (
-        <>
-            <Navbar />
-            <StoryPageBackground activeMission={selectedMission} />
-            
-            <main className="relative z-10">
-                <StoryPageHeader/>
-                <StoryForm />
-            </main>
+export default function ShareStoryPage() {
+  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
 
-            <Footer />
-        </>
-    )
+  const handleSelectPrompt = (prompt: string) => {
+    setSelectedPrompt(prompt);
+    
+    // Smooth scroll down to form section
+    const formSection = document.getElementById("story-form-section");
+    if (formSection) {
+      formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleClearPrompt = () => {
+    setSelectedPrompt(null);
+  };
+
+  return (
+    <main className="min-h-screen bg-[#020617] overflow-x-hidden">
+      {/* Interactive header block containing prompt selectors */}
+      <StoryPageHeader 
+        onSelectPrompt={handleSelectPrompt} 
+        selectedPrompt={selectedPrompt} 
+      />
+      
+      {/* Form Submission Block */}
+      <StoryForm
+        selectedPrompt={selectedPrompt} 
+        onClearPrompt={handleClearPrompt} 
+      />
+    </main>
+  );
 }
-
-export default ShareStoryPage

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/home/Footer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -125,7 +127,9 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable}`}
     >
       <body className="bg-[#020617] text-white antialiased">
+        <Navbar/>
         {children}
+        <Footer/>
       </body>
     </html>
   );

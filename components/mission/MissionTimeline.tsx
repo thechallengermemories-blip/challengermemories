@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { Rocket, Clock, ShieldAlert, Heart, Star, Microscope } from 'lucide-react';
+import { Rocket, ShieldAlert, Heart, Star } from 'lucide-react';
 
 interface TimelineEvent {
   time: string;
@@ -11,67 +11,34 @@ interface TimelineEvent {
   icon: React.ReactNode;
 }
 
-interface MissionTimelineProps {
-  mission: 'challenger' | 'columbia';
-}
+const TIMELINE_DATA: TimelineEvent[] = [
+  {
+    time: "Jan 28, 11:38 AM",
+    title: "Liftoff",
+    description: "After several delays, Challenger lifts off from Kennedy Space Center Launch Complex 39B.",
+    icon: <Rocket className="w-5 h-5" />,
+  },
+  {
+    time: "T+ 73 Seconds",
+    title: "Breakup",
+    description: "The vehicle suffered a structural failure originating from the right Solid Rocket Booster O-ring seal.",
+    icon: <ShieldAlert className="w-5 h-5" />,
+  },
+  {
+    time: "The Afternoon",
+    title: "National Mourning",
+    description: "President Ronald Reagan delivers a televised address, quoting the poem 'High Flight': 'Slipped the surly bonds of Earth to touch the face of God.'",
+    icon: <Heart className="w-5 h-5" />,
+  },
+  {
+    time: "Post-1986",
+    title: "The Legacy",
+    description: "The Challenger Center for Space Science Education was formed by the families to continue the crew's mission of education.",
+    icon: <Star className="w-5 h-5" />,
+  }
+];
 
-const TIMELINE_DATA = {
-  challenger: [
-    {
-      time: "Jan 28, 11:38 AM",
-      title: "Liftoff",
-      description: "After several delays, Challenger lifts off from Kennedy Space Center Launch Complex 39B.",
-      icon: <Rocket className="w-5 h-5" />,
-    },
-    {
-      time: "T+ 73 Seconds",
-      title: "Breakup",
-      description: "The vehicle suffered a structural failure originating from the right Solid Rocket Booster O-ring seal.",
-      icon: <ShieldAlert className="w-5 h-5" />,
-    },
-    {
-      time: "The Afternoon",
-      title: "National Mourning",
-      description: "President Ronald Reagan delivers a televised address, quoting the poem 'High Flight': 'Slipped the surly bonds of Earth to touch the face of God.'",
-      icon: <Heart className="w-5 h-5" />,
-    },
-    {
-      time: "Post-1986",
-      title: "The Legacy",
-      description: "The Challenger Center for Space Science Education was formed by the families to continue the crew's mission of education.",
-      icon: <Star className="w-5 h-5" />,
-    }
-  ],
-  columbia: [
-    {
-      time: "Jan 16, 2003",
-      title: "Launch",
-      description: "STS-107 launches for a 16-day dedicated science mission. During ascent, a piece of foam strikes the left wing.",
-      icon: <Rocket className="w-5 h-5" />,
-    },
-    {
-      time: "Days 1—16",
-      title: "Science in Orbit",
-      description: "The crew successfully conducts over 80 experiments in life sciences, material sciences, and fluid physics.",
-      icon: <Microscope className="w-5 h-5" />,
-    },
-    {
-      time: "Feb 1, 2003",
-      title: "Re-entry",
-      description: "During descent, superheated gasses entered the damaged wing, leading to the loss of the orbiter over Texas.",
-      icon: <ShieldAlert className="w-5 h-5" />,
-    },
-    {
-      time: "Legacy",
-      title: "Safety Evolution",
-      description: "The tragedy led to fundamental changes in NASA's safety culture and the development of orbital inspection techniques.",
-      icon: <Star className="w-5 h-5" />,
-    }
-  ]
-};
-
-const MissionTimeline = ({ mission }: MissionTimelineProps) => {
-  const events = TIMELINE_DATA[mission];
+const MissionTimeline = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Scroll-linked line animation
@@ -106,12 +73,12 @@ const MissionTimeline = ({ mission }: MissionTimelineProps) => {
 
         {/* Timeline Events */}
         <div className="space-y-24">
-          {events.map((event, index) => (
+          {TIMELINE_DATA.map((event, index) => (
             <TimelineItem 
               key={index} 
               event={event} 
               index={index} 
-              isLast={index === events.length - 1} 
+              isLast={index === TIMELINE_DATA.length - 1} 
             />
           ))}
         </div>

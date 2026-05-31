@@ -4,30 +4,21 @@ import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Calendar, Users, Rocket, MapPin } from 'lucide-react';
 
-interface MissionHeroProps {
-  title: string;
-  missionCode: string;
-  description: string;
-  date: string;
-  crewCount: number;
-  orbiter: string;
-  site: string;
-}
-
-const MissionHero = ({
-  title = "Challenger",
-  missionCode = "STS-51-L",
-  description = "A journey beyond the horizon, dedicated to the seven souls who expanded the boundaries of human endeavor. Their legacy continues to light the path for generations of explorers.",
-  date = "January 28, 1986",
-  crewCount = 7,
-  orbiter = "Challenger OV-099",
-  site = "Kennedy Space Center, FL"
-}: MissionHeroProps) => {
+const MissionHero = () => {
   const { scrollY } = useScroll();
   
   // Parallax effects for the background and content
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
+  // Static historical data
+  const title = "Challenger";
+  const missionCode = "STS-51-L";
+  const description = "A journey beyond the horizon, dedicated to the seven souls who expanded the boundaries of human endeavor. Their legacy continues to light the path for generations of explorers.";
+  const date = "January 28, 1986";
+  const crewCount = 7;
+  const orbiter = "Challenger OV-099";
+  const site = "Kennedy Space Center, FL";
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#020617] py-20 px-4">
@@ -43,12 +34,12 @@ const MissionHero = ({
                     key={i}
                     className="absolute bg-white rounded-full"
                     style={{
-                        top: `${Math.random() * 100}%`,
-                        left: `${Math.random() * 100}%`,
-                        width: `${Math.random() * 2 + 1}px`,
-                        height: `${Math.random() * 2 + 1}px`,
+                        top: `${(i * 17.3) % 100}%`, // Using deterministic placement to avoid SSR hydration mismatches
+                        left: `${(i * 29.7) % 100}%`,
+                        width: `${(i % 3) + 1}px`,
+                        height: `${(i % 3) + 1}px`,
                         boxShadow: '0 0 10px white',
-                        animation: `pulse ${Math.random() * 3 + 2}s infinite`
+                        animation: `pulse ${(i % 3) + 2}s infinite`
                     }}
                 />
             ))}

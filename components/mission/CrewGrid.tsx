@@ -5,12 +5,9 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { ExternalLink } from 'lucide-react';
 
-interface CrewGridProps {
-  mission: 'challenger' | 'columbia';
-}
+const CHALLENGER_CREW =
 
-const CREW_DATA = {
-  challenger: [
+[
     {
       name: "Francis R. Scobee",
       role: "Commander",
@@ -60,64 +57,9 @@ const CREW_DATA = {
       bio: "Chosen from 11,000 to be the first teacher in space.",
       bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/mcauliffe.pdf"
     }
-  ],
-
-  columbia: [
-    {
-      name: "Rick Husband",
-      role: "Commander",
-      image: "https://imgs.search.brave.com/T0q3EqkiZEpcQaqK64A87KJyeuo28Emcu8VVE5W0jEs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi8yLzIwL1Jp/Y2hhcmRfSHVzYmFu/ZCUyQ19OQVNBX3Bo/b3RvX3BvcnRyYWl0/X2lu/X29yYW5nZV9z/dWl0LmpwZy81MTJw/eC1SaWNoYXJkX0h1/c2JhbmQlMkNfTkFT/QV9waG90b19wb3J0/cmFpdF9pbl9vcmFu/Z2Vfc3VpdC5qcGc",
-      bio: "Air Force colonel and mechanical engineer.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/husband_rick.pdf"
-    },
-    {
-      name: "William C. McCool",
-      role: "Pilot",
-      image: "https://imgs.search.brave.com/cpE6oLYLpRHqvKFuu7mNV1sCS4W6kjZFRYc5pc6FRvs/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi9jL2M1L1dp/bGxpYW1fQ2FtZXJv/bl9NY0Nvb2wuanBn/LzUxMnB4LVdpbGxp/YW1fQ2FtZXJvbl9N/Y0Nvb2wuanBn",
-      bio: "Navy commander and test pilot.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/mccool_william.pdf"
-    },
-    {
-      name: "Michael P. Anderson",
-      role: "Mission Specialist",
-      image: "https://imgs.search.brave.com/pyhBMexn7iIi_8iH_CFgqQABudQ0cQY9bRRpZMH2AjQ/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi81LzU5L01p/Y2hhZWxfUC5fQW5k/ZXJzb24lMkNfb2Zm/aWNpYWxfcG9ydHJh/aXQuanBnLzUxMnB4/LU1pY2hhZWxfUC5f/QW5kZXJzb24lMkNf/b2ZmaWNpYWxfcG9y/dHJhaXQuanBn",
-      bio: "Payload commander in charge of science experiments.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/anderson_michael.pdf"
-    },
-    {
-      name: "David M. Brown",
-      role: "Mission Specialist",
-      image: "https://imgs.search.brave.com/lkGjkElx0LxDA2_d7FUfpKdsRGey2vA84OxYjyhkpYI/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9zcGVj/aWFsdHlwaHlzaWNp/YW5hc3NvY2lhdGVz/LmNvbS93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMS8wMy9EYXZp/ZC1NLi1Ccm93bi1N/RC0xLnBuZw",
-      bio: "Captain, flight surgeon, and circus performer.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/brown_david.pdf"
-    },
-    {
-      name: "Kalpana Chawla",
-      role: "Mission Specialist",
-      image: "https://imgs.search.brave.com/vHgEsCsErp7CuafRIfiSnYa22D3YakwJzQw7aswew6U/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi85LzljL0th/bHBhbmFfQ2hhd2xh/JTJDX05BU0FfcGhv/dG9fcG9ydHJhaXRf/aW5fb3JhbmdlX3N1/aXQuanBnLzUxMnB4/LUthbHBhbmFfQ2hh/d2xhJTJDX05BU0Ff/cGhvdG9fcG9ydHJh/aXRfaW5fb3Jhbmdl/X3N1aXQuanBn",
-      bio: "The first woman of Indian origin to go to space.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/chawla_kalpana.pdf"
-    },
-    {
-      name: "Laurel Clark",
-      role: "Mission Specialist",
-      image: "https://imgs.search.brave.com/NTY5kvO7R23fjIvCv8wnb1HB4FLq_LeHQvtDQSOxGvQ/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi8yLzI0L0xh/dXJlbF9DbGFyayUy/Q19OQVNBX3Bob3Rv/X3BvcnRyYWl0X2lu/X2JsdWVfc3VpdC5q/cGcvNTEycHgtTGF1/cmVsX0NsYXJrJTJD/X05BU0FfcGhvdG9f/cG9ydHJhaXRfaW5f/Ymx1ZV9zdWl0Lmpw/Zw",
-      bio: "Medical doctor and flight surgeon.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/clark_laurel.pdf"
-    },
-    {
-      name: "Ilan Ramon",
-      role: "Payload Specialist",
-      image: "https://imgs.search.brave.com/jTAE-fgWbV3AQ1j8yKsxnIZ51eSVyIp8_cmHa1eHB5E/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvY29tbW9ucy90/aHVtYi80LzQ4L0ls/YW5fUmFtb24lMkNf/TkFTQV9waG90b19w/b3J0cmFpdF9pbl9v/cmFuZ2Vfc3VpdC5q/cGcvNTEycHgtSWxh/bl9SYW1vbiUyQ19O/QVNBX3Bob3RvX3Bv/cnRyYWl0/X2luX29yYW5nZV9z/dWl0LmpwZw",
-      bio: "The first Israeli astronaut.",
-      bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/ramon_ilan.pdf"
-    }
   ]
-};
 
-const CrewGrid = ({ mission }: CrewGridProps) => {
-  const crew = CREW_DATA[mission];
-
+const CrewGrid = () => {
   return (
     <section className="py-24 px-4 bg-[#020617]">
       <div className="max-w-7xl mx-auto">
@@ -136,7 +78,7 @@ const CrewGrid = ({ mission }: CrewGridProps) => {
             visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
           }}
         >
-          {crew.map((member) => (
+          {CHALLENGER_CREW.map((member) => (
             <motion.div 
               key={member.name} 
               variants={{
@@ -145,7 +87,6 @@ const CrewGrid = ({ mission }: CrewGridProps) => {
               }}
               className="group relative"
             >
-              {/* Wrapped in anchor tag for external NASA bio */}
               <a 
                 href={member.bioUrl} 
                 target="_blank" 
