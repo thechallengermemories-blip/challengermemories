@@ -1,4 +1,4 @@
-import { Clock, Globe, Sparkles, LucideIcon } from "lucide-react";
+import { Clock, Globe, Sparkles, LucideIcon, Palette } from "lucide-react";
 
 export interface PromptCategory {
   id: string;
@@ -34,15 +34,10 @@ export const PROMPT_CATEGORIES: PromptCategory[] = [
     ]
   },
   {
-    id: "creative",
-    label: "Creative & Sensory",
-    icon: Sparkles,
-    tagline: "For artists, writers, and reflective tributes.",
-    prompts: [
-      "Interpret the concept of 'what was interrupted'—the educational vision and the journey.",
-      "Explore the contrast between hope and fragility, or the sky and the classroom.",
-      "Write an inherited memory—imagining the event through the eyes of a parent or grandparent.",
-      "Describe a single unforgettable archival image or feeling and how it echoes across generations."
-    ]
+    id: "art",
+    label: "Artistic Expression",
+    icon: Palette,
+    tagline: "Your photographs, drawings, and recordings make history tangible.",
+    prompts: []
   }
 ];

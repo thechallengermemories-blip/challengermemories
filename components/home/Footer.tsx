@@ -59,7 +59,7 @@ export const Footer = () => {
                   href="/share-story"
                   className="text-slate-500 hover:text-sky-400 text-sm transition-colors uppercase tracking-widest"
                 >
-                  Submit Story
+                  Submit Memory
                 </Link>
               </li>
               <li>

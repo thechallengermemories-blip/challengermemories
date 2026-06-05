@@ -86,7 +86,7 @@ export const Navbar = () => {
           <Link href="/share-story">
             <button className="group flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 rounded-full text-white transition-all duration-300 font-mono text-[10px] uppercase tracking-widest font-semibold shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]">
               <Share2 size={12} className="text-white" />
-              <span>Share Your Story</span>
+              <span>Share Your Memories</span>
             </button>
           </Link>
         </div>

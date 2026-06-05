@@ -226,7 +226,7 @@ export function HeroSection() {
           transition={{ duration: 1, delay: 0.6 }}
           className="max-w-3xl text-sm sm:text-base md:text-lg text-slate-300 font-light leading-relaxed mb-8 select-text"
         >
-          The Challenger mission became part of millions of lives — in classrooms, homes, workplaces, and conversations across generations. Some remember watching it live. Others grew up hearing the stories afterward. This project exists to preserve those human experiences and explore how history continues to shape people long after a moment has passed [1].
+          The Challenger mission became part of millions of lives — in classrooms, homes, workplaces, and conversations across generations. Some remember watching it live. Others grew up hearing the stories afterward. This project exists to preserve those human experiences and explore how history continues to shape people long after a moment has passed.
         </motion.p>
 
         {/* Call to Action Controls */}
@@ -240,7 +240,7 @@ export function HeroSection() {
             href="/share-story"
             className="px-7 py-3 rounded-full bg-sky-500 text-white font-mono text-xs uppercase tracking-widest font-semibold hover:bg-sky-400 transition-all duration-300 shadow-[0_0_20px_rgba(14,165,233,0.25)] hover:shadow-[0_0_30px_rgba(14,165,233,0.4)]"
           >
-            Share Your Story
+            Share Your Memory
           </a>
           <a
             href="/stories"

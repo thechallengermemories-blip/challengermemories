@@ -67,7 +67,7 @@ export const CTAShareStory = () => {
           </motion.div>
 
           <h2 className="text-4xl md:text-6xl font-serif text-white mb-6 leading-tight">
-            Your story is a <br />
+            Your Memory is a <br />
             <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-white to-purple-300">
               star in their legacy.
             </span>
@@ -85,7 +85,7 @@ export const CTAShareStory = () => {
               <div className="absolute -inset-1 bg-sky-500 rounded-full blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
               
               <button className="relative px-10 py-5 bg-white text-black rounded-full font-bold uppercase tracking-widest text-xs flex items-center gap-3 transition-transform hover:scale-105 active:scale-95">
-                Write Your Story
+                Write Your Memory
                 <Send size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </button>
             </Link>
