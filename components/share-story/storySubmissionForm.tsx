@@ -308,12 +308,12 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
               </div>
 
               <div className="space-y-1">
-                <label className={labelStyles}>Your Story</label>
+                <label className={labelStyles}>Your Memory</label>
                 <textarea
                   name="narrative"
                   required
                   rows={8}
-                  placeholder="Type your story here. Remember, honest details and small perspectives are the heart of this archive..."
+                  placeholder="Type your memory here. Remember, honest details and small perspectives are the heart of this archive..."
                   className={cn(inputBaseStyles, "leading-relaxed resize-none font-sans text-sm sm:text-base")}
                 />
               </div>
@@ -490,7 +490,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                 </span>
               </div>
               <p className="text-slate-500 text-[11px] leading-relaxed">
-                Contact information is never shared publicly or used for marketing. It is safely held in our database only if our historians need to verify authenticity or ask for permission to use your story in educational exhibits.
+                Contact information is never shared publicly or used for marketing. It is safely held in our database only if our historians need to verify authenticity or ask for permission to use your memory in educational exhibits.
               </p>
             </div>
           </aside>

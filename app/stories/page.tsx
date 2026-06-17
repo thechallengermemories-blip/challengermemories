@@ -97,7 +97,7 @@ const StoriesPage = () => {
 
             {/* Subheading */}
             <p className="text-slate-400 font-light text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-14">
-              Forty years on, the world still holds Challenger close. These are the stories people carry — from classrooms, living rooms, and lifetimes shaped by a single morning.
+              Forty years on, the world still holds Challenger close. These are the memories people carry — from classrooms, living rooms, and lifetimes shaped by a single morning.
             </p>
 
           </motion.div>

@@ -32,7 +32,7 @@ const MULTIMEDIA_IDEAS = [
   {
     icon: Mic,
     title: "Voice Recordings",
-    description: "Record yourself reading your story aloud. A grandparent's voice narrating their memory is irreplaceable history.",
+    description: "Record yourself reading your memory aloud. A grandparent's voice narrating their memory is irreplaceable history.",
     accent: "emerald",
   },
   {
@@ -97,7 +97,7 @@ export const StoryPageHeader: React.FC<HeaderProps> = ({ onSelectPrompt, selecte
           transition={{ duration: 1, delay: 0.1 }}
           className="font-serif text-5xl sm:text-6xl md:text-7xl font-normal text-white mb-6 tracking-tight"
         >
-          Share Your <span className="italic font-light text-slate-400">Challenger Story</span>
+          Share Your <span className="italic font-light text-slate-400">Challenger Memory</span>
         </motion.h1>
 
         <motion.p
@@ -172,7 +172,7 @@ export const StoryPageHeader: React.FC<HeaderProps> = ({ onSelectPrompt, selecte
                   <Palette size={16} className="text-violet-400 shrink-0 mt-0.5" />
                   <p className="text-slate-300 text-xs sm:text-sm leading-relaxed font-light">
                     Words aren't the only way to archive a memory. Upload photographs, drawings, recordings, or scanned documents
-                    alongside your story — or let a single image speak on its own. Every format is welcome.
+                    alongside your memory — or let a single image speak on its own. Every format is welcome.
                   </p>
                 </div>
 
@@ -249,7 +249,7 @@ export const StoryPageHeader: React.FC<HeaderProps> = ({ onSelectPrompt, selecte
                           Prompt 0{index + 1}
                         </span>
                         <span className="text-[10px] font-mono text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1">
-                          {isPinned ? "Selected Guide" : "Write this story"} <ArrowRight size={10} />
+                          {isPinned ? "Selected Guide" : "Write this memory"} <ArrowRight size={10} />
                         </span>
                       </div>
                     </motion.div>
