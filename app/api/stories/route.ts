@@ -165,7 +165,7 @@ export async function GET(req: Request) {
 
     const totalStories = await Story.countDocuments(query);
     const stories = await Story.find(query)
-      .sort({ category: 1, createdAt: -1 }) // 'heritage' (H) before 'public' (P)
+      .sort({ createdAt: -1 }) 
       .skip(skip)
       .limit(limit);
 

@@ -14,6 +14,8 @@ const StoriesPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef('');
+  const storiesSectionRef = useRef<HTMLDivElement>(null);
+
 
   const fetchStories = useCallback(async (query: string, page: number) => {
     setLoading(true);
@@ -21,6 +23,7 @@ const StoriesPage = () => {
       const params = new URLSearchParams({
         mission: 'challenger',
         page: page.toString(),
+        sort: '-createdAt',
         ...(query && { search: query }),
       });
       const response = await fetch(`/api/stories?${params.toString()}`);
@@ -148,7 +151,7 @@ const StoriesPage = () => {
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-32">
 
         {/* Section label row */}
-        <div className="flex items-center justify-between mb-10">
+        <div ref={storiesSectionRef} className="flex items-center justify-between mb-10">
           <div>
             <h2 className="text-2xl font-serif text-white">
               {searchQuery ? `Results for "${searchQuery}"` : 'All Stories'}
@@ -168,14 +171,66 @@ const StoriesPage = () => {
           </div>
         </div>
 
-        {/* Loading shimmer */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-2xl bg-white/[0.03] border border-white/5 animate-pulse" />
-            ))}
+  <>
+    {/* Mission spinner */}
+    <div className="flex flex-col items-center gap-6 py-12">
+      <div className="relative w-16 h-16">
+        <svg className="absolute inset-0 animate-spin" style={{ animationDuration: '2.8s' }} viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="rgba(56,189,248,0.12)" strokeWidth="1.5"/>
+          <circle cx="32" cy="32" r="30" stroke="rgba(56,189,248,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="28 160"/>
+          <circle cx="32" cy="2" r="2.5" fill="#38bdf8"/>
+        </svg>
+        <svg className="absolute inset-[10px]" style={{ animation: 'spin 1.8s linear infinite reverse' }} viewBox="0 0 44 44" fill="none">
+          <circle cx="22" cy="22" r="18" stroke="rgba(56,189,248,0.35)" strokeWidth="1" strokeLinecap="round" strokeDasharray="12 100"/>
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-2 h-2 rounded-full bg-sky-500/80" />
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="font-mono text-[10px] tracking-[0.3em] text-sky-400/60 uppercase mb-1">
+          Syncing memory archive
+        </p>
+        <p className="font-mono text-[8px] tracking-[0.25em] text-sky-400/25 uppercase animate-pulse">
+          transmission incoming
+        </p>
+      </div>
+    </div>
+
+    {/* Skeleton cards */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 flex flex-col gap-3 overflow-hidden">
+          {/* scanline */}
+          <div className="absolute inset-x-0 h-12 bg-gradient-to-b from-transparent via-sky-400/[0.05] to-transparent animate-[scan_2.8s_ease-in-out_infinite]"
+               style={{ animationDelay: `${i * 0.35}s` }} />
+          {/* corners */}
+          {['top-2 left-2 border-t border-l','top-2 right-2 border-t border-r','bottom-2 left-2 border-b border-l','bottom-2 right-2 border-b border-r'].map((cls,j) => (
+            <div key={j} className={`absolute w-2 h-2 ${cls} border-sky-400/20`} />
+          ))}
+          <p className="font-mono text-[8px] tracking-[0.18em] text-sky-400/20 uppercase">REC-00{i} · awaiting</p>
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-sky-400/30 animate-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
+            <div className="h-4 w-20 rounded-full bg-white/[0.04] border border-sky-400/10 animate-pulse" />
+            <div className="h-4 w-12 rounded-full bg-white/[0.04] border border-sky-400/10 animate-pulse ml-auto" />
           </div>
-        )}
+          <div className="h-3 w-[85%] rounded bg-white/[0.04] animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+          <div className="h-3 w-[60%] rounded bg-white/[0.04] animate-pulse" />
+          <div className="h-px bg-white/[0.04] my-1" />
+          <div className="h-2.5 w-full rounded bg-white/[0.04] animate-pulse" />
+          <div className="h-2.5 w-[80%] rounded bg-white/[0.04] animate-pulse" />
+          <div className="h-2.5 w-[65%] rounded bg-white/[0.04] animate-pulse" />
+          <div className="flex items-center gap-2 mt-1">
+            <div className="flex-1 h-px bg-sky-400/[0.08]" />
+            <span className="font-mono text-[7px] tracking-[0.2em] text-sky-400/18 uppercase">awaiting transmission</span>
+            <div className="flex-1 h-px bg-sky-400/[0.08]" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </>
+)}
 
         {/* Stories */}
         {!loading && stories.length > 0 && (
@@ -213,7 +268,14 @@ const StoriesPage = () => {
 
         {/* Pagination */}
         {!loading && stories.length > 0 && (
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+         <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+           onPageChange={(page) => {
+            setCurrentPage(page);
+            storiesSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
         )}
       </section>
     </main>

@@ -1,6 +1,3 @@
-"use client";
-import React, { useState } from "react";
-import { motion, Variants } from "framer-motion";
 import { Crosshair, Globe, Database } from "lucide-react";
 
 const CREW = [
@@ -10,7 +7,7 @@ const CREW = [
     id: "CDR",
     seat: "01",
     bio: "Test pilot. Vietnam veteran. Led STS-51-L with quiet courage.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/4/42/Scobee-fr.jpg",
+    img: "/Scobee-fr.webp",
   },
   {
     name: "Michael J. Smith",
@@ -18,7 +15,7 @@ const CREW = [
     id: "PLT",
     seat: "02",
     bio: "Navy test pilot. Father of three. His first spaceflight.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Michael_Smith_%28NASA%29.jpg",
+    img: "/Michael_Smith.webp",
   },
   {
     name: "Ronald E. McNair",
@@ -26,7 +23,7 @@ const CREW = [
     id: "MS1",
     seat: "03",
     bio: "Physicist. Saxophonist. Second African American in space.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/0/08/Ronald_Erwin_McNair.jpg",
+    img: "/Ronald_Erwin_McNair.webp",
   },
   {
     name: "Ellison S. Onizuka",
@@ -34,7 +31,7 @@ const CREW = [
     id: "MS2",
     seat: "04",
     bio: "Air Force colonel. First Asian American in space.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/c/ce/Ellison_Shoji_Onizuka_%28NASA%29.jpg",
+    img: "/Ellison_Shoji_Onizuka.webp",
   },
   {
     name: "Judith A. Resnik",
@@ -42,7 +39,7 @@ const CREW = [
     id: "MS3",
     seat: "05",
     bio: "Electrical engineer. Second American woman in space.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/1/1f/Judith_A._Resnik%2C_official_portrait_%28cropped%29.jpg",
+    img: "/Judith_A._Resnik_official_portrait.webp",
   },
   {
     name: "Gregory B. Jarvis",
@@ -50,7 +47,7 @@ const CREW = [
     id: "PS1",
     seat: "06",
     bio: "Satellite engineer for Hughes Aircraft. Dreamed of the cosmos.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/1/13/Gregory_Jarvis_%28NASA%29_cropped.jpg",
+    img: "/Gregory_Jarvis.webp",
   },
   {
     name: "Christa McAuliffe",
@@ -58,7 +55,7 @@ const CREW = [
     id: "PS2",
     seat: "07",
     bio: "New Hampshire schoolteacher. Chosen from 11,000 to teach from orbit.",
-    img: "https://upload.wikimedia.org/wikipedia/commons/e/e1/ChristaMcAuliffe_%28cropped%29.jpg",
+    img: "/ChristaMcAuliffe.webp",
   },
 ];
 
@@ -71,53 +68,65 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
 }));
 
 export function HeroSection() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  // Native mouse move capture for lag-free background parallax shift
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const { clientX, clientY, currentTarget } = e;
-    const { width, height } = currentTarget.getBoundingClientRect();
-    const x = (clientX / width - 0.5) * 16; // Slight responsive shift
-    const y = (clientY / height - 0.5) * 16;
-    setMousePos({ x, y });
-  };
-
-  // Lens-Focus Animation Variants
-  const focusTitleVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      letterSpacing: "0.22em", 
-      filter: "blur(15px)", 
-      scale: 0.96 
-    },
-    visible: {
-      opacity: 0.95,
-      letterSpacing: "-0.015em",
-      filter: "blur(0px)",
-      scale: 1,
-      transition: {
-        duration: 1.8,
-        ease: [0.16, 1, 0.3, 1], // Cinematic smooth ease-out
-      }
-    }
-  };
-
-  const lineVariants: Variants = {
-    hidden: { pathLength: 0, opacity: 0 },
-    visible: { 
-      pathLength: 1, 
-      opacity: 1,
-      transition: { duration: 2.2, ease: "easeInOut", delay: 0.2 }
-    }
-  };
-
   return (
-    <section 
-      onMouseMove={handleMouseMove}
-      className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none"
-    >
+    <section className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none">
       
-      {/* 1. Deep Space Atmosphere with Slow Starfield */}
+      {/* 1. Scoped CSS Animations for Server Components */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes lens-focus {
+          0% {
+            opacity: 0;
+            filter: blur(12px);
+            letter-spacing: 0.2em;
+            transform: scale(0.97);
+          }
+          100% {
+            opacity: 0.95;
+            filter: blur(0px);
+            letter-spacing: -0.015em;
+            transform: scale(1);
+          }
+        }
+        @keyframes fade-in-up {
+          0% {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes float-telemetry {
+          0%, 100% {
+            transform: translate(0px, 0px) rotate(0deg);
+          }
+          25% {
+            transform: translate(6px, -12px) rotate(0.5deg);
+          }
+          50% {
+            transform: translate(-10px, 6px) rotate(-0.5deg);
+          }
+          75% {
+            transform: translate(8px, 10px) rotate(0.2deg);
+          }
+        }
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.15; }
+          50% { opacity: 0.75; }
+        }
+        .animate-lens-focus {
+          animation: lens-focus 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-float-telemetry {
+          animation: float-telemetry 24s ease-in-out infinite;
+        }
+      `}} />
+
+      {/* 2. Deep Space Atmosphere with Slow Twinkling Starfield */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-sky-500/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-purple-500/5 blur-[120px] rounded-full" />
@@ -132,41 +141,40 @@ export function HeroSection() {
               top: star.top,
               left: star.left,
               opacity: star.opacity,
+              animation: `twinkle ${4 + (star.id % 4)}s ease-in-out infinite`,
+              animationDelay: `${(star.id % 5) * 0.5}s`,
             }}
           />
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/90" />
       </div>
 
-      {/* 2. Interactive SVG Celestial Telemetry Grid (Parallax Enabled) */}
-      <div 
-        className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center transition-transform duration-500 ease-out"
-        style={{
-          transform: `translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`,
-        }}
-      >
-        <svg className="w-[600px] h-[600px] md:w-[700px] md:h-[700px] text-sky-500/5" viewBox="0 0 400 400">
-          {/* Inner compass orbits */}
-          <motion.circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 6" variants={lineVariants} initial="hidden" animate="visible" />
-          <motion.circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeWidth="0.5" variants={lineVariants} initial="hidden" animate="visible" />
-          <motion.circle cx="200" cy="200" r="80" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="6 3" variants={lineVariants} initial="hidden" animate="visible" />
-          
-          {/* Intersection crosshair lines */}
-          <motion.line x1="200" y1="0" x2="200" y2="400" stroke="currentColor" strokeWidth="0.5" variants={lineVariants} initial="hidden" animate="visible" />
-          <motion.line x1="0" y1="200" x2="400" y2="200" stroke="currentColor" strokeWidth="0.5" variants={lineVariants} initial="hidden" animate="visible" />
-          
-          {/* Dynamic pulsing orbital memory nodes */}
-          <g className="text-sky-400">
-            <circle cx="340" cy="200" r="2.5" fill="currentColor" className="animate-ping [animation-duration:3s]" />
-            <circle cx="340" cy="200" r="1.5" fill="currentColor" />
-            <circle cx="98" cy="110" r="2.5" fill="currentColor" className="animate-ping [animation-duration:4s]" />
-            <circle cx="98" cy="110" r="1.5" fill="currentColor" />
-            <circle cx="260" cy="320" r="2" fill="currentColor" />
-          </g>
-        </svg>
+      {/* 3. Celestial Telemetry Grid (Driven by Ambient CSS Floating instead of JS) */}
+      <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
+        <div className="w-[600px] h-[600px] md:w-[700px] md:h-[700px] text-sky-500/5 animate-float-telemetry">
+          <svg className="w-full h-full" viewBox="0 0 400 400">
+            {/* Inner compass orbits */}
+            <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 6" />
+            <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeWidth="0.5" />
+            <circle cx="200" cy="200" r="80" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="6 3" />
+            
+            {/* Intersection crosshair lines */}
+            <line x1="200" y1="0" x2="200" y2="400" stroke="currentColor" strokeWidth="0.5" />
+            <line x1="0" y1="200" x2="400" y2="200" stroke="currentColor" strokeWidth="0.5" />
+            
+            {/* Pulsing orbital nodes */}
+            <g className="text-sky-400">
+              <circle cx="340" cy="200" r="2.5" fill="currentColor" className="animate-ping [animation-duration:3s]" />
+              <circle cx="340" cy="200" r="1.5" fill="currentColor" />
+              <circle cx="98" cy="110" r="2.5" fill="currentColor" className="animate-ping [animation-duration:4s]" />
+              <circle cx="98" cy="110" r="1.5" fill="currentColor" />
+              <circle cx="260" cy="320" r="2" fill="currentColor" />
+            </g>
+          </svg>
+        </div>
       </div>
 
-      {/* 3. Archival Layout Frame Borders */}
+      {/* 4. Archival Layout Frame Borders */}
       <div className="absolute inset-6 md:inset-8 pointer-events-none z-10 border border-white/[0.02]">
         <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-white/10" />
         <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/10" />
@@ -190,51 +198,39 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* 4. Upper Core Content */}
+      {/* 5. Upper Core Content */}
       <div className="relative z-10 max-w-6xl mx-auto w-full pt-28 sm:pt-32 lg:pt-36 text-center flex flex-col items-center">
         
         {/* Archival Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex items-center gap-4 mb-8"
-        >
+        <div className="animate-fade-in-up flex items-center gap-4 mb-8">
           <div className="h-[1px] w-12 bg-sky-500/25" />
           <span className="font-mono text-[9px] sm:text-xs uppercase tracking-[0.4em] text-sky-400/80 font-semibold flex items-center gap-2">
             <Database size={10} className="text-sky-400/60" />
             Preserving Shared Human Memory
           </span>
           <div className="h-[1px] w-12 bg-sky-500/25" />
-        </motion.div>
+        </div>
 
         {/* Lens-Focus Shifting Heading */}
-        <motion.h1
-          variants={focusTitleVariants}
-          initial="hidden"
-          animate="visible"
-          className="font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white mb-6 select-text"
+        <h1
+          className="animate-lens-focus font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white mb-6 select-text"
           style={{ willChange: "filter, letter-spacing, transform, opacity" }}
         >
           Challenger Memories
-        </motion.h1>
+        </h1>
 
         {/* Narrative Description */}
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.6 }}
-          className="max-w-3xl text-sm sm:text-base md:text-lg text-slate-300 font-light leading-relaxed mb-8 select-text"
+        <p
+          className="animate-fade-in-up max-w-3xl text-sm sm:text-base md:text-lg text-slate-300 font-light leading-relaxed mb-8 select-text"
+          style={{ animationDelay: "0.3s", animationFillMode: "both" }}
         >
           The Challenger mission became part of millions of lives — in classrooms, homes, workplaces, and conversations across generations. Some remember watching it live. Others grew up hearing the stories afterward. This project exists to preserve those human experiences and explore how history continues to shape people long after a moment has passed.
-        </motion.p>
+        </p>
 
         {/* Call to Action Controls */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.7 }}
-          className="mt-4 flex flex-wrap justify-center gap-4 w-full"
+        <div
+          className="animate-fade-in-up mt-4 flex flex-wrap justify-center gap-4 w-full"
+          style={{ animationDelay: "0.5s", animationFillMode: "both" }}
         >
           <a
             href="/share-story"
@@ -248,10 +244,10 @@ export function HeroSection() {
           >
             Explore Memories
           </a>
-        </motion.div>
+        </div>
       </div>
 
-      {/* 5. The Unified Crew Grid (Zero-Lag CSS Sibling Dimming) */}
+      {/* 6. The Unified Crew Grid (Zero-Lag CSS Sibling Dimming) */}
       <div className="relative z-10 max-w-7xl mx-auto w-full mt-16 lg:mt-24 mb-4">
         
         <div className="flex flex-col items-center mb-8">
