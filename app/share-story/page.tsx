@@ -1,5 +1,6 @@
 "use client";
 
+import { CrewFooter } from "@/components/layout/crewfooter";
 import { StoryPageHeader } from "@/components/share-story/storyHeader";
 import { StoryForm } from "@/components/share-story/storySubmissionForm";
 // import { StoryForm } from "@/components/forms/StoryForm";
@@ -38,6 +39,7 @@ export default function ShareStoryPage() {
         selectedPrompt={selectedPrompt} 
         onClearPrompt={handleClearPrompt} 
       />
+      <CrewFooter/>
     </main>
   );
 }

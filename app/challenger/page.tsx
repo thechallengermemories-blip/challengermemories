@@ -5,6 +5,7 @@ import CrewGrid from "@/components/mission/CrewGrid";
 import MissionTimeline from "@/components/mission/MissionTimeline";
 import StoriesPreviewList from "@/components/mission/StoriesPreviewList";
 import { Footer } from "@/components/home/Footer";
+import { CrewFooter } from "@/components/layout/crewfooter";
 
 export default function ChallengerPage() {
   return (
@@ -13,6 +14,7 @@ export default function ChallengerPage() {
       <CrewGrid />
       <MissionTimeline />
       <StoriesPreviewList />
+      <CrewFooter/>
     </main>
   );
 }

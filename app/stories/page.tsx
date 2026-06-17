@@ -6,6 +6,7 @@ import { StoryCard } from '@/components/stories/StoryCard';
 import { Pagination } from '@/components/stories/Pagination';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
+import {CrewFooter} from "@/components/layout/crewfooter"
 
 const StoriesPage = () => {
   const [stories, setStories] = useState([]);
@@ -278,6 +279,7 @@ const StoriesPage = () => {
         />
         )}
       </section>
+      <CrewFooter/>
     </main>
   );
 };

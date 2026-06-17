@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Crosshair, Globe, Database } from "lucide-react";
 
 const CREW = [
@@ -8,6 +9,7 @@ const CREW = [
     seat: "01",
     bio: "Test pilot. Vietnam veteran. Led STS-51-L with quiet courage.",
     img: "/Scobee-fr.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/scobee_francis.pdf",
   },
   {
     name: "Michael J. Smith",
@@ -16,6 +18,7 @@ const CREW = [
     seat: "02",
     bio: "Navy test pilot. Father of three. His first spaceflight.",
     img: "/Michael_Smith.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/smith_michael.pdf",
   },
   {
     name: "Ronald E. McNair",
@@ -24,6 +27,7 @@ const CREW = [
     seat: "03",
     bio: "Physicist. Saxophonist. Second African American in space.",
     img: "/Ronald_Erwin_McNair.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/mcnair_ronald.pdf",
   },
   {
     name: "Ellison S. Onizuka",
@@ -32,6 +36,7 @@ const CREW = [
     seat: "04",
     bio: "Air Force colonel. First Asian American in space.",
     img: "/Ellison_Shoji_Onizuka.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/onizuka_ellison.pdf",
   },
   {
     name: "Judith A. Resnik",
@@ -40,6 +45,7 @@ const CREW = [
     seat: "05",
     bio: "Electrical engineer. Second American woman in space.",
     img: "/Judith_A._Resnik_official_portrait.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/resnik_judith_with_photo_0.pdf",
   },
   {
     name: "Gregory B. Jarvis",
@@ -48,6 +54,7 @@ const CREW = [
     seat: "06",
     bio: "Satellite engineer for Hughes Aircraft. Dreamed of the cosmos.",
     img: "/Gregory_Jarvis.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/jarvis.pdf",
   },
   {
     name: "Christa McAuliffe",
@@ -56,6 +63,7 @@ const CREW = [
     seat: "07",
     bio: "New Hampshire schoolteacher. Chosen from 11,000 to teach from orbit.",
     img: "/ChristaMcAuliffe.webp",
+    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/mcauliffe.pdf",
   },
 ];
 
@@ -71,7 +79,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none">
       
-      {/* 1. Scoped CSS Animations for Server Components */}
+      {/* 1. Scoped CSS Animations */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes lens-focus {
           0% {
@@ -98,18 +106,10 @@ export function HeroSection() {
           }
         }
         @keyframes float-telemetry {
-          0%, 100% {
-            transform: translate(0px, 0px) rotate(0deg);
-          }
-          25% {
-            transform: translate(6px, -12px) rotate(0.5deg);
-          }
-          50% {
-            transform: translate(-10px, 6px) rotate(-0.5deg);
-          }
-          75% {
-            transform: translate(8px, 10px) rotate(0.2deg);
-          }
+          0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+          25% { transform: translate(6px, -12px) rotate(0.5deg); }
+          50% { transform: translate(-10px, 6px) rotate(-0.5deg); }
+          75% { transform: translate(8px, 10px) rotate(0.2deg); }
         }
         @keyframes twinkle {
           0%, 100% { opacity: 0.15; }
@@ -124,9 +124,79 @@ export function HeroSection() {
         .animate-float-telemetry {
           animation: float-telemetry 24s ease-in-out infinite;
         }
+
+        /* Crew card — only GPU-composited properties */
+        .crew-card {
+          transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+          will-change: transform;
+        }
+        .crew-card:hover {
+          transform: translateY(-6px);
+          border-color: rgba(56,189,248,0.4);
+          box-shadow: 0 0 28px rgba(56,189,248,0.15);
+        }
+
+        /* Beautiful, clear portrait opacity & warm grayscale mix */
+        .crew-img {
+          opacity: 0.82;
+          filter: grayscale(20%);
+          transition: transform 0.4s ease, opacity 0.4s ease, filter 0.4s ease;
+        }
+        .crew-card:hover .crew-img {
+          transform: scale(1.04);
+          opacity: 1;
+          filter: grayscale(0%);
+        }
+
+        /* Smooth CSS Grid auto-height container for the bio */
+        .crew-bio-wrapper {
+          display: grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .crew-card:hover .crew-bio-wrapper {
+          grid-template-rows: 1fr;
+        }
+
+        /* Bio reveal: opacity + translate slide-up */
+        .crew-bio {
+          min-height: 0;
+          overflow: hidden;
+          opacity: 0;
+          transform: translateY(4px);
+          transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .crew-card:hover .crew-bio {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        /* Clean name expansion */
+        .crew-firstname {
+          display: inline-block;
+          max-width: 0px;
+          opacity: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          vertical-align: bottom;
+          transition: max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+        }
+        .crew-card:hover .crew-firstname {
+          max-width: 120px;
+          opacity: 0.9;
+        }
+
+        /* Badge opacity */
+        .crew-badges {
+          opacity: 0.5;
+          transition: opacity 0.2s ease;
+        }
+        .crew-card:hover .crew-badges {
+          opacity: 1;
+        }
       `}} />
 
-      {/* 2. Deep Space Atmosphere with Slow Twinkling Starfield */}
+      {/* 2. Deep Space Atmosphere */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] bg-sky-500/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[45%] h-[45%] bg-purple-500/5 blur-[120px] rounded-full" />
@@ -149,20 +219,15 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/90" />
       </div>
 
-      {/* 3. Celestial Telemetry Grid (Driven by Ambient CSS Floating instead of JS) */}
+      {/* 3. Celestial Telemetry Grid */}
       <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
         <div className="w-[600px] h-[600px] md:w-[700px] md:h-[700px] text-sky-500/5 animate-float-telemetry">
           <svg className="w-full h-full" viewBox="0 0 400 400">
-            {/* Inner compass orbits */}
             <circle cx="200" cy="200" r="190" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="3 6" />
             <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeWidth="0.5" />
             <circle cx="200" cy="200" r="80" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="6 3" />
-            
-            {/* Intersection crosshair lines */}
             <line x1="200" y1="0" x2="200" y2="400" stroke="currentColor" strokeWidth="0.5" />
             <line x1="0" y1="200" x2="400" y2="200" stroke="currentColor" strokeWidth="0.5" />
-            
-            {/* Pulsing orbital nodes */}
             <g className="text-sky-400">
               <circle cx="340" cy="200" r="2.5" fill="currentColor" className="animate-ping [animation-duration:3s]" />
               <circle cx="340" cy="200" r="1.5" fill="currentColor" />
@@ -174,14 +239,12 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* 4. Archival Layout Frame Borders */}
+      {/* 4. Archival Layout Frame */}
       <div className="absolute inset-6 md:inset-8 pointer-events-none z-10 border border-white/[0.02]">
         <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-white/10" />
         <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-white/10" />
         <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-white/10" />
         <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-white/10" />
-
-        {/* Fine Architectural Sidebar Coordinates (Desktop) */}
         <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6 text-[8px] font-mono tracking-[0.3em] uppercase text-slate-500/60 [writing-mode:vertical-lr]">
           <div className="flex items-center gap-2">
             <Crosshair size={8} className="text-sky-400/50" />
@@ -201,7 +264,6 @@ export function HeroSection() {
       {/* 5. Upper Core Content */}
       <div className="relative z-10 max-w-6xl mx-auto w-full pt-28 sm:pt-32 lg:pt-36 text-center flex flex-col items-center">
         
-        {/* Archival Badge */}
         <div className="animate-fade-in-up flex items-center gap-4 mb-8">
           <div className="h-[1px] w-12 bg-sky-500/25" />
           <span className="font-mono text-[9px] sm:text-xs uppercase tracking-[0.4em] text-sky-400/80 font-semibold flex items-center gap-2">
@@ -211,7 +273,6 @@ export function HeroSection() {
           <div className="h-[1px] w-12 bg-sky-500/25" />
         </div>
 
-        {/* Lens-Focus Shifting Heading */}
         <h1
           className="animate-lens-focus font-serif text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white mb-6 select-text"
           style={{ willChange: "filter, letter-spacing, transform, opacity" }}
@@ -219,7 +280,6 @@ export function HeroSection() {
           Challenger Memories
         </h1>
 
-        {/* Narrative Description */}
         <p
           className="animate-fade-in-up max-w-3xl text-sm sm:text-base md:text-lg text-slate-300 font-light leading-relaxed mb-8 select-text"
           style={{ animationDelay: "0.3s", animationFillMode: "both" }}
@@ -227,7 +287,6 @@ export function HeroSection() {
           The Challenger mission became part of millions of lives — in classrooms, homes, workplaces, and conversations across generations. Some remember watching it live. Others grew up hearing the stories afterward. This project exists to preserve those human experiences and explore how history continues to shape people long after a moment has passed.
         </p>
 
-        {/* Call to Action Controls */}
         <div
           className="animate-fade-in-up mt-4 flex flex-wrap justify-center gap-4 w-full"
           style={{ animationDelay: "0.5s", animationFillMode: "both" }}
@@ -247,7 +306,7 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* 6. The Unified Crew Grid (Zero-Lag CSS Sibling Dimming) */}
+      {/* 6. Crew Grid */}
       <div className="relative z-10 max-w-7xl mx-auto w-full mt-16 lg:mt-24 mb-4">
         
         <div className="flex flex-col items-center mb-8">
@@ -257,33 +316,31 @@ export function HeroSection() {
           <div className="w-12 h-[1px] bg-sky-500/30 mt-2" />
         </div>
 
-        {/* 
-          Using parent hover trigger ("group/container").
-          When hovering over the grid, all crew members dim to opacity 40%, 
-          while the specific hovered card overrides this via native CSS to animate to scale and opacity 100%.
-        */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full group/container">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
           {CREW.map((member) => (
-            <div
+            <a
               key={member.id}
-              className="relative aspect-[3/4] rounded-2xl bg-slate-900 border border-white/10 overflow-hidden group/card transition-all duration-500 ease-out hover:border-sky-500/40 hover:-translate-y-1.5 hover:shadow-[0_0_35px_rgba(56,189,248,0.18)] hover:!opacity-100 group-hover/container:opacity-40"
+              href={member.bioUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="crew-card relative aspect-[3/4] rounded-2xl bg-slate-900 border border-white/10 overflow-hidden block"
             >
-              {/* Card Image and Gradients */}
-              <div className="absolute inset-0 overflow-hidden bg-slate-950">
-                <img
+              {/* Image Container with precise single gradient overlay */}
+              <div className="absolute inset-0 bg-slate-950">
+                <Image
                   src={member.img}
                   alt={member.name}
-                  className="w-full h-full object-cover select-none grayscale-[40%] transition-all duration-700 ease-out group-hover/card:grayscale-0 group-hover/card:scale-105 opacity-60 group-hover/card:opacity-85"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
+                  priority={true}
+                  className="crew-img object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-slate-950/40 to-transparent z-10" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/30 via-transparent to-transparent z-10" />
-                
-                {/* Slow interactive overlay gradient inside card on hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-sky-950/20 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
+                {/* Subtle dark bottom gradient to keep names perfectly readable without masking the uniforms */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/25 to-transparent z-10" />
               </div>
 
-              {/* Individual Badges */}
-              <div className="absolute top-3 left-3 right-3 flex justify-between items-center z-20 opacity-50 group-hover/card:opacity-100 transition-opacity duration-300">
+              {/* Badges */}
+              <div className="crew-badges absolute top-3 left-3 right-3 flex justify-between items-center z-20">
                 <span className="font-mono text-[8px] bg-black/40 px-2 py-0.5 rounded border border-white/10 text-sky-400 font-medium tracking-wider">
                   {member.id}
                 </span>
@@ -292,25 +349,31 @@ export function HeroSection() {
                 </span>
               </div>
 
-              {/* Bio & Details Slide-Up (No layout-shifting, 100% smooth GPU-bound CSS transition) */}
-              <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end min-h-[95px] bg-gradient-to-t from-[#020617] via-[#020617]/95 to-transparent z-20">
+              {/* Info Container — sits tightly at the bottom */}
+              <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end z-20">
                 <p className="font-mono text-[8px] tracking-widest text-sky-400 uppercase mb-1">
                   {member.role}
                 </p>
-                <h3 className="font-serif text-sm sm:text-base font-light text-white leading-tight">
+                <h3 className="font-serif text-sm sm:text-base font-light text-white leading-tight mb-1">
                   {member.name.split(" ").slice(-1)[0]}
-                  <span className="hidden group-hover/card:inline text-white/90">
+                  <span className="crew-firstname text-white/90">
                     , {member.name.split(" ").slice(0, -1).join(" ")}
                   </span>
                 </h3>
 
-                <div className="h-0 group-hover/card:h-12 overflow-hidden transition-all duration-500 ease-out opacity-0 group-hover/card:opacity-100">
-                  <p className="font-serif text-[10px] text-slate-400 italic leading-snug pt-2">
-                    {member.bio}
-                  </p>
+                {/* Grid-based dynamic reveal — expands from 0px to auto-height on hover */}
+                <div className="crew-bio-wrapper">
+                  <div className="crew-bio">
+                    <p className="font-serif text-[10px] text-slate-300 italic leading-snug mt-2 mb-2">
+                      {member.bio}
+                    </p>
+                    <span className="font-mono text-[8px] text-sky-400 uppercase tracking-widest border-b border-sky-400/30 pb-0.5 inline-block">
+                      View Biography →
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
