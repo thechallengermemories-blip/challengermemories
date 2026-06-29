@@ -3,14 +3,16 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Rocket, Users, Globe, Star } from 'lucide-react';
+import { CreatorsSection } from './CreatorsSection';
 
 const AboutPage = () => {
   return (
-    <main className="bg-[#020617] min-h-screen pt-24 pb-12 overflow-hidden">
-      {/* 1. Page Header */}
-      <section className="relative px-4 py-20 text-center">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-gradient-to-b from-sky-600/10 to-transparent blur-3xl pointer-events-none" />
-        
+    <main className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
+      {/* Background Glows */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* 1. Page Header */}  
+      <section className="relative pt-32 pb-20 px-4 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -40,16 +42,18 @@ const AboutPage = () => {
               <Heart className="text-sky-400 w-6 h-6" />
             </div>
             <h2 className="text-3xl font-serif text-white">Why This Archive Exists</h2>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-slate-400 leading-relaxed font-light">
               History is often recorded in cold dates and technical reports, but the true impact of the 
               Challenger mission lives in the personal memories of those who watched from Earth.
             </p>
-           <p className="text-slate-400 leading-relaxed font-light">
-  We built this platform to focus on the <strong>human stories</strong>. 
-  By sharing these chronicles, we ensure that the names <span className="text-white">Francis R. Scobee, Michael J. Smith, Ronald E. McNair, Ellison S. Onizuka, Judith A. Resnik, Gregory B. Jarvis, and S. Christa McAuliffe</span> are carried forward by those they inspired.
-</p>
+            <p className="text-slate-400 leading-relaxed font-light">
+              We built this platform to focus on the human stories. By sharing these
+              chronicles, we ensure that the names Francis R. Scobee, Michael J. Smith, Ronald
+              E. McNair, Ellison S. Onizuka, Judith A. Resnik, Gregory B. Jarvis, and S.
+              Christa McAuliffe are carried forward by those they inspired.
+            </p>
           </motion.div>
-          
+
           <motion.div 
              initial={{ opacity: 0, scale: 0.9 }}
              whileInView={{ opacity: 1, scale: 1 }}
@@ -83,8 +87,11 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* 4. Credits Section */}
-      <section className="py-32 px-4 text-center">
+      {/* 4. Creators Section (Our New Component) */}
+      <CreatorsSection />
+
+      {/* 5. Credits/Community Section */}
+      <section className="py-24 px-4 text-center">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -95,7 +102,7 @@ const AboutPage = () => {
             <h3 className="text-xl font-serif text-white mb-4">A Community Tribute</h3>
             <p className="text-slate-500 text-sm leading-relaxed mb-10 max-w-lg mx-auto font-light">
                 Our goal is to provide a dignified space for the public 
-                to record Where they were, what they felt, what they learned, turning a moment of silence into an eternal conversation.
+                to record where they were, what they felt, and what they learned—turning a moment of silence into an eternal conversation.
             </p>
             <div className="flex justify-center gap-6 items-center">
                 <div className="h-px w-16 bg-gradient-to-r from-transparent to-slate-800" />
@@ -108,13 +115,17 @@ const AboutPage = () => {
   );
 };
 
-/* Internal UI Component for Mission Cards */
-const MissionContextCard = ({ title, description, icon }: { title: string, description: string, icon: React.ReactNode }) => (
-  <div className="p-10 rounded-[2.5rem] border border-white/5 bg-slate-950/40 backdrop-blur-sm hover:border-sky-500/20 transition-all group relative overflow-hidden">
-    <div className="absolute -right-8 -top-8 w-32 h-32 bg-sky-500/5 blur-3xl rounded-full" />
-    
+/* Internal UI Component for Mission Cards */ 
+interface MissionCardProps {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+const MissionContextCard = ({ title, description, icon }: MissionCardProps) => (
+  <div className="bg-slate-950/40 border border-white/5 rounded-3xl p-8 hover:border-sky-500/20 transition-all duration-300">
     <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
-      <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 group-hover:scale-110 transition-transform">
+      <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 transition-transform">
         {icon}
       </div>
       <h3 className="text-2xl font-serif text-white">{title}</h3>

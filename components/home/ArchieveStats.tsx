@@ -11,9 +11,9 @@ interface Stats {
 }
 
 const FALLBACK_STATS: Stats = {
-  memoriesCount: 32,
+  memoriesCount: 5,
   statesCount: 15,
-  countriesCount: 2
+  countriesCount: 3
 };
 
 export const ArchiveStatistics = () => {
