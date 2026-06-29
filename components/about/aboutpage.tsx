@@ -95,7 +95,7 @@ const AboutPage = () => {
             <h3 className="text-xl font-serif text-white mb-4">A Community Tribute</h3>
             <p className="text-slate-500 text-sm leading-relaxed mb-10 max-w-lg mx-auto font-light">
                 Our goal is to provide a dignified space for the public 
-                to record where they were and how they felt, turning a moment of silence into an eternal conversation.
+                to record Where they were, what they felt, what they learned, turning a moment of silence into an eternal conversation.
             </p>
             <div className="flex justify-center gap-6 items-center">
                 <div className="h-px w-16 bg-gradient-to-r from-transparent to-slate-800" />
