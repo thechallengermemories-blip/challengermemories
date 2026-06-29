@@ -20,7 +20,7 @@ export const Footer = () => {
             <Link href="/" className="flex items-center gap-2 group">
               <Sparkles className="text-sky-400 w-5 h-5 group-hover:rotate-12 transition-transform" />
               <span className="font-serif text-xl tracking-tighter text-white uppercase italic">
-                Eternal Mission
+                Brave crew
               </span>
             </Link>
             <p className="text-slate-500 text-sm leading-relaxed max-w-xs">

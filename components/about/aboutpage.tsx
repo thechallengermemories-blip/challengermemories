@@ -45,8 +45,8 @@ const AboutPage = () => {
               Challenger mission lives in the personal memories of those who watched from Earth.
             </p>
            <p className="text-slate-400 leading-relaxed font-light">
-  We built this platform to move beyond the tragedy and focus on the <strong>human story</strong>. 
-  By sharing these chronicles, we ensure that the names <span className="text-white">Francis R. Scobee, Michael J. Smith, Ronald E. McNair, Ellison S. Onizuka, Judith A. Resnik, Gregory B. Jarvis, and S Christa McAuliffe</span> are carried forward by those they inspired.
+  We built this platform to focus on the <strong>human stories</strong>. 
+  By sharing these chronicles, we ensure that the names <span className="text-white">Francis R. Scobee, Michael J. Smith, Ronald E. McNair, Ellison S. Onizuka, Judith A. Resnik, Gregory B. Jarvis, and S. Christa McAuliffe</span> are carried forward by those they inspired.
 </p>
           </motion.div>
           
