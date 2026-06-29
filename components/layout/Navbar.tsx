@@ -35,7 +35,7 @@ export const Navbar = () => {
     <nav
       className={cn(
         "fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out px-6 md:px-12",
-        scrolled 
+        scrolled || isOpen
           ? "py-4 bg-[#020617]/95 backdrop-blur-xl border-b border-white/5" 
           : "py-6 bg-transparent"
       )}
@@ -108,7 +108,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: "spring", damping: 28, stiffness: 220 }}
-            className="fixed inset-0 bg-[#020617] flex flex-col p-8 z-[100] lg:hidden"
+            className="fixed inset-0 bg-[#020617] flex flex-col p-8 z-[99] lg:hidden"
           >
             <div className="mt-24 flex flex-col gap-8 h-full">
               <p className="text-zinc-500 font-mono text-[9px] uppercase tracking-[0.4em] mb-2 border-b border-white/5 pb-2">
