@@ -32,75 +32,76 @@ export const Navbar = () => {
   }, [pathname]);
 
   return (
-    <nav
-      className={cn(
-        "fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out px-6 md:px-12",
-        scrolled || isOpen
-          ? "py-4 bg-[#020617]/95 backdrop-blur-xl border-b border-white/5" 
-          : "py-6 bg-transparent"
-      )}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* LOGO / BRANDING */}
-        <Link href="/" className="group flex items-center gap-3 z-[110]">
-          <div className="relative flex items-center justify-center">
-            {/* Respectful circular marker utilizing sky-blue colors */}
-            <div className="w-2.5 h-2.5 rounded-full bg-sky-400 group-hover:scale-110 transition-transform duration-300" />
-            <motion.div 
-              animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.3, 0.1] }}
-              transition={{ repeat: Infinity, duration: 4 }}
-              className="absolute inset-0 w-6 h-6 bg-sky-400/20 blur-md rounded-full -translate-x-1/4 -translate-y-1/4"
-            />
-          </div>
-          <span className="font-serif text-lg tracking-wider text-white/90 uppercase font-light">
-            Challenger <span className="text-sky-400">Memories</span>
-          </span>
-        </Link>
-
-        {/* DESKTOP NAV */}
-        <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className={cn(
-                "text-[10px] uppercase tracking-[0.25em] font-mono transition-all duration-300 hover:text-sky-400",
-                pathname === link.href ? "text-sky-400" : "text-zinc-400"
-              )}
-            >
-              <span className="relative pb-1">
-                {link.name}
-                {pathname === link.href && (
-                  <motion.span 
-                    layoutId="nav-underline"
-                    className="absolute bottom-0 left-0 w-full h-[1px] bg-sky-400/60"
-                  />
-                )}
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        {/* CTA BUTTON */}
-        <div className="hidden md:flex items-center gap-4">
-          <Link href="/share-story">
-            <button className="group flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 rounded-full text-white transition-all duration-300 font-mono text-[10px] uppercase tracking-widest font-semibold shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]">
-              <Share2 size={12} className="text-white" />
-              <span>Share Your Memories</span>
-            </button>
+    <>
+      <nav
+        className={cn(
+          "fixed top-0 w-full z-[100] transition-all duration-500 ease-in-out px-6 md:px-12",
+          scrolled || isOpen
+            ? "py-4 bg-[#020617]/95 backdrop-blur-xl border-b border-white/5"
+            : "py-6 bg-transparent"
+        )}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* LOGO / BRANDING */}
+          <Link href="/" className="group flex items-center gap-3 z-[110]">
+            <div className="relative flex items-center justify-center">
+              <div className="w-2.5 h-2.5 rounded-full bg-sky-400 group-hover:scale-110 transition-transform duration-300" />
+              <motion.div
+                animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.3, 0.1] }}
+                transition={{ repeat: Infinity, duration: 4 }}
+                className="absolute inset-0 w-6 h-6 bg-sky-400/20 blur-md rounded-full -translate-x-1/4 -translate-y-1/4"
+              />
+            </div>
+            <span className="font-serif text-lg tracking-wider text-white/90 uppercase font-light">
+              Challenger <span className="text-sky-400">Memories</span>
+            </span>
           </Link>
+
+          {/* DESKTOP NAV */}
+          <div className="hidden lg:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={cn(
+                  "text-[10px] uppercase tracking-[0.25em] font-mono transition-all duration-300 hover:text-sky-400",
+                  pathname === link.href ? "text-sky-400" : "text-zinc-400"
+                )}
+              >
+                <span className="relative pb-1">
+                  {link.name}
+                  {pathname === link.href && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      className="absolute bottom-0 left-0 w-full h-[1px] bg-sky-400/60"
+                    />
+                  )}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* CTA BUTTON */}
+          <div className="hidden md:flex items-center gap-4">
+            <Link href="/share-story">
+              <button className="group flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-400 rounded-full text-white transition-all duration-300 font-mono text-[10px] uppercase tracking-widest font-semibold shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]">
+                <Share2 size={12} className="text-white" />
+                <span>Share Your Memories</span>
+              </button>
+            </Link>
+          </div>
+
+          {/* MOBILE TOGGLE */}
+          <button
+            className="lg:hidden text-zinc-400 hover:text-white z-[110] p-2 hover:bg-white/5 rounded transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
         </div>
+      </nav>
 
-        {/* MOBILE TOGGLE */}
-        <button 
-          className="lg:hidden text-zinc-400 hover:text-white z-[110] p-2 hover:bg-white/5 rounded transition-colors"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
-      </div>
-
-      {/* MOBILE MENU OVERLAY */}
+      {/* MOBILE MENU OVERLAY — outside <nav> so fixed inset-0 covers full screen */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -114,7 +115,7 @@ export const Navbar = () => {
               <p className="text-zinc-500 font-mono text-[9px] uppercase tracking-[0.4em] mb-2 border-b border-white/5 pb-2">
                 Archive Navigation
               </p>
-              
+
               <div className="flex flex-col gap-6">
                 {navLinks.map((link, i) => (
                   <motion.div
@@ -157,6 +158,6 @@ export const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
