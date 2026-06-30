@@ -67,11 +67,15 @@ export async function POST(req: Request) {
     const mission   = formData.get("mission");
     const category  = (formData.get("category") as string) || "public";
     const relation  = (formData.get("relation") as string) || "public-observer";
+    const country   = (formData.get("country") as string) || "";
+    const state     = (formData.get("state") as string) || "";
 
     // ── Multi-file media upload ──
     const mediaCount = parseInt((formData.get("media_count") as string) || "0", 10);
+    const archiveMediaCount = parseInt((formData.get("archive_media_count") as string) || "0", 10);
 
-    if (mediaCount > UPLOAD_CONFIG.maxFiles) {
+    // Validate combined total against the same cap the client enforces
+    if (mediaCount + archiveMediaCount > UPLOAD_CONFIG.maxFiles) {
       return NextResponse.json(
         { success: false, error: `Maximum ${UPLOAD_CONFIG.maxFiles} files allowed.` },
         { status: 400 }
@@ -80,6 +84,7 @@ export async function POST(req: Request) {
 
     const mediaUrls: { url: string; type: "image" | "video" }[] = [];
 
+    // ── Uploaded files (go through Cloudinary) ──
     for (let i = 0; i < mediaCount; i++) {
       const file = formData.get(`media_${i}`) as File | null;
       const type = (formData.get(`media_${i}_type`) as "image" | "video") || "image";
@@ -96,6 +101,14 @@ export async function POST(req: Request) {
       mediaUrls.push({ url, type });
     }
 
+    // ── Archive-picked images (static paths already on disk, no upload needed) ──
+    for (let i = 0; i < archiveMediaCount; i++) {
+      const archivePath = formData.get(`archive_media_${i}`) as string | null;
+      if (!archivePath) continue;
+
+      mediaUrls.push({ url: archivePath, type: "image" });
+    }
+
     // Backwards-compatible: keep imageUrl pointing to the first image
     const imageUrl = mediaUrls.find((m) => m.type === "image")?.url ?? "";
 
@@ -107,12 +120,13 @@ export async function POST(req: Request) {
       mission,
       category,
       relation,
+      country,
+      state,
       imageUrl,
       media:  mediaUrls,
-      status: "pending", // ← always pending, admin must approve
+      status: "pending",
     });
 
-    // ✅ Awaited so Vercel doesn't kill it before Brevo responds
     try {
       await sendStoryAlert({
         name:      String(name),
@@ -120,10 +134,9 @@ export async function POST(req: Request) {
         title:     String(title),
         mission:   String(mission),
         narrative: String(narrative),
-        media:     mediaUrls, // ← full media array with Cloudinary URLs
+        media:     mediaUrls,
       });
     } catch (emailErr) {
-      // Email failure must not fail the whole submission
       console.error("[Email alert failed]", emailErr);
     }
 

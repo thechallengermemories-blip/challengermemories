@@ -4,10 +4,12 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send, ShieldCheck, X, Camera, CheckCircle2,
-  Loader2, Sparkles, Film, FileImage, Plus, AlertCircle, Bookmark, BookmarkX
+  Loader2, Sparkles, Film, AlertCircle, Bookmark, BookmarkX
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { compressMedia } from "@/lib/compressMedia"; // Ensure path is configured
+import { LocationField } from "@/components/location/LocationField";
+import { ArchiveGalleryPicker } from "./ArchiveGalleryPicker";
 
 const UPLOAD_CONFIG = {
   maxFiles: 3,
@@ -19,10 +21,12 @@ const UPLOAD_CONFIG = {
 
 type MediaFile = {
   id: string;
-  file: File;
   preview: string;
   type: "image" | "video";
   error?: string;
+  source: "upload" | "archive";
+  file?: File;          // only present for uploads
+  archivePath?: string; // only present for archive picks, e.g. "/archive-images/launch-01.jpg"
 };
 
 type Phase = "idle" | "compressing" | "uploading";
@@ -38,6 +42,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [compressionProgress, setCompressionProgress] = useState<{ index: number; pct: number } | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,6 +64,17 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
 
   const labelStyles =
     "text-[10px] uppercase tracking-[0.4em] text-sky-400/70 ml-1 font-mono font-semibold block mb-3";
+
+  const handleArchiveSelect = (paths: string[]) => {
+    const newMedia: MediaFile[] = paths.map((path) => ({
+      id: `${path}-${Date.now()}`,
+      preview: path,
+      type: "image",
+      source: "archive",
+      archivePath: path,
+    }));
+    setMediaFiles((prev) => [...prev, ...newMedia]);
+  };
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
@@ -96,6 +112,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
           file,
           preview: URL.createObjectURL(file),
           type: isVideo ? "video" : "image",
+          source: "upload",
           error: errorMsg,
         };
       });
@@ -109,7 +126,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
   const removeMedia = (id: string) => {
     setMediaFiles((prev) => {
       const removed = prev.find((m) => m.id === id);
-      if (removed) URL.revokeObjectURL(removed.preview);
+      if (removed?.source === "upload") URL.revokeObjectURL(removed.preview);
       return prev.filter((m) => m.id !== id);
     });
     setGlobalError(null);
@@ -126,18 +143,22 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
 
     const formEl = e.currentTarget;
 
+    // Separate uploads (need compression) from archive picks (just static paths)
+    const uploads = mediaFiles.filter((m) => m.source === "upload");
+    const archivePicks = mediaFiles.filter((m) => m.source === "archive");
+
     try {
       setPhase("compressing");
       setCompressionProgress(null);
 
       const compressedFiles = await Promise.all(
-        mediaFiles.map(async (m, i) => {
+        uploads.map(async (m, i) => {
           const onProgress = m.type === "video"
             ? (pct: number) => setCompressionProgress({ index: i + 1, pct })
             : undefined;
 
           setCompressionProgress({ index: i + 1, pct: 0 });
-          const compressed = await compressMedia(m.file, m.type, onProgress);
+          const compressed = await compressMedia(m.file as File, m.type, onProgress);
           setCompressionProgress({ index: i + 1, pct: 100 });
           return compressed;
         })
@@ -154,9 +175,14 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
 
       compressedFiles.forEach((file, i) => {
         formData.append(`media_${i}`, file);
-        formData.append(`media_${i}_type`, mediaFiles[i].type);
+        formData.append(`media_${i}_type`, uploads[i].type);
       });
       formData.append("media_count", String(compressedFiles.length));
+
+      archivePicks.forEach((m, i) => {
+        formData.append(`archive_media_${i}`, m.archivePath as string);
+      });
+      formData.append("archive_media_count", String(archivePicks.length));
 
       const response = await fetch("/api/stories", {
         method: "POST",
@@ -168,7 +194,9 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
         setIsSuccess(true);
         formRef.current?.reset();
         onClearPrompt();
-        mediaFiles.forEach((m) => URL.revokeObjectURL(m.preview));
+        mediaFiles.forEach((m) => {
+          if (m.source === "upload") URL.revokeObjectURL(m.preview);
+        });
         setMediaFiles([]);
       } else {
         setGlobalError(result.error || "Submission failed. Please try again.");
@@ -231,7 +259,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
     <section ref={sectionRef} id="story-form-section" className="pb-32 px-6 bg-[#020617] text-white">
       <div className="max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-          
+
           {/* Main Form Entry */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -242,7 +270,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-sky-500/5 blur-[100px] rounded-full" />
 
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-10 relative z-10">
-              
+
               {/* Active Writing Prompt Indicator */}
               <AnimatePresence mode="popLayout">
                 {selectedPrompt && (
@@ -307,6 +335,8 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                 />
               </div>
 
+              <LocationField inputBaseStyles={inputBaseStyles} labelStyles={labelStyles} />
+
               <div className="space-y-1">
                 <label className={labelStyles}>Your Memory</label>
                 <textarea
@@ -345,6 +375,13 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                             </div>
                           </>
                         )}
+
+                        {m.source === "archive" && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-violet-500/20 border border-violet-500/30 text-violet-300 text-[8px] font-mono uppercase tracking-widest z-20">
+                            Archive
+                          </span>
+                        )}
+
                         <button
                           type="button"
                           onClick={() => removeMedia(m.id)}
@@ -368,7 +405,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                   <div className="space-y-1.5 p-3 rounded-lg bg-white/[0.02] border border-white/5">
                     <div className="flex justify-between items-center text-[9px] font-mono">
                       <span className="text-sky-400 uppercase tracking-widest">
-                        Compressing file {compressionProgress.index} of {mediaFiles.length}…
+                        Compressing file {compressionProgress.index} of {mediaFiles.filter((m) => m.source === "upload").length}…
                       </span>
                       <span className="text-slate-500">{Math.round(compressionProgress.pct)}%</span>
                     </div>
@@ -411,6 +448,23 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                   </div>
                 )}
 
+                {/* Archive picker trigger */}
+                <button
+                  type="button"
+                  onClick={() => setGalleryOpen(true)}
+                  disabled={isSubmitting || mediaFiles.length >= UPLOAD_CONFIG.maxFiles}
+                  className="mt-3 w-full text-center text-[10px] font-mono uppercase tracking-widest text-sky-400/70 hover:text-sky-400 border border-sky-500/15 hover:border-sky-500/30 rounded-xl py-3 transition-colors disabled:opacity-30"
+                >
+                  Don&apos;t have a photo? Choose from our archive
+                </button>
+
+                <ArchiveGalleryPicker
+                  open={galleryOpen}
+                  onClose={() => setGalleryOpen(false)}
+                  remainingSlots={UPLOAD_CONFIG.maxFiles - mediaFiles.length}
+                  onConfirm={handleArchiveSelect}
+                />
+
                 {/* Global Submission Errors */}
                 <AnimatePresence>
                   {globalError && (
@@ -450,7 +504,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
 
           {/* Sidebar / Archive Guidelines */}
           <aside className="lg:col-span-4 space-y-6">
-            
+
             <div className="p-8 rounded-[2rem] bg-slate-900/40 border border-white/5 backdrop-blur-md relative overflow-hidden">
               <h3 className="text-white font-serif text-2xl mb-6 leading-snug">
                 Archive Protocol

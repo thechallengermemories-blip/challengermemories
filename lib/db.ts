@@ -19,6 +19,8 @@ const storySchema = new mongoose.Schema({
   title:     { type: String, required: true },
   narrative: { type: String, required: true },
   mission:   { type: String, enum: ["challenger", "columbia"], required: true },
+  country:  { type: String },
+  state:    { type: String },
   imageUrl:  { type: String },          // legacy — first image URL
 
   // ✅ Add this
