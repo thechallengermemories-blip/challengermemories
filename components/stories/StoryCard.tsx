@@ -73,9 +73,9 @@ export const StoryCard = ({ story }: { story: any }) => {
                   <span className="text-xs text-slate-200 font-medium tracking-wide">
                      {story.name || 'Anonymous Witness'}
                   </span>
-                  <span className="text-[10px] text-sky-500/60 font-mono uppercase tracking-tighter">
+                  {/* <span className="text-[10px] text-sky-500/60 font-mono uppercase tracking-tighter">
                     Verified Contributor
-                  </span>
+                  </span> */}
                 </div>
               </div>
 
