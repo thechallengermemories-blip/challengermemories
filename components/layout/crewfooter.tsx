@@ -13,7 +13,7 @@ interface CrewCardData {
 
 async function fetchCrew(): Promise<CrewCardData[]> {
   try {
-    const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${base}/api/crew`, { next: { revalidate: 60 } });
     if (!res.ok) return [];
 
