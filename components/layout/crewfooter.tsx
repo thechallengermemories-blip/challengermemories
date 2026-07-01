@@ -1,37 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
-
-interface CrewCardData {
-  slug: string;
-  name: string;
-  role: string;
-  crewId: string;
-  seat: string;
-  img: string;
-  shortBio: string;
-}
-
-async function getCrew(): Promise<CrewCardData[]> {
-  try {
-    // Build an absolute URL for the internal API call — server components
-    // can't fetch relative paths.
-    const h = await headers();
-    const host = h.get("host");
-    const protocol = host?.startsWith("localhost") ? "http" : "https";
-
-    const res = await fetch(`${protocol}://${host}/api/crew`, {
-      next: { revalidate: 60 }, // re-fetch at most once a minute
-    });
-
-    if (!res.ok) return [];
-    const { crew } = await res.json();
-    return crew ?? [];
-  } catch (err) {
-    console.error("Failed to load crew for footer:", err);
-    return [];
-  }
-}
+import { getCrewList } from "@/lib/get-crew";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -45,7 +14,7 @@ async function getCrew(): Promise<CrewCardData[]> {
  * multiple times without class collisions.
  */
 export async function CrewFooter() {
-  const crew = await getCrew();
+  const crew = await getCrewList();
 
   return (
     <section className="relative w-full bg-[#020617] text-white overflow-hidden">

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { Crosshair, Globe, Database } from "lucide-react";
+import { getCrewList } from "@/lib/get-crew";
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -11,39 +11,8 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
   opacity: 0.05 + (i % 5) * 0.03,
 }));
 
-interface CrewCardData {
-  slug: string;
-  name: string;
-  role: string;
-  crewId: string;
-  seat: string;
-  img: string;
-  shortBio: string;
-}
-
-async function getCrew(): Promise<CrewCardData[]> {
-  try {
-    // Build an absolute URL for the internal API call — server components
-    // can't fetch relative paths.
-    const h = await headers();
-    const host = h.get("host");
-    const protocol = host?.startsWith("localhost") ? "http" : "https";
-
-    const res = await fetch(`${protocol}://${host}/api/crew`, {
-      next: { revalidate: 60 }, // re-fetch at most once a minute
-    });
-
-    if (!res.ok) return [];
-    const { crew } = await res.json();
-    return crew ?? [];
-  } catch (err) {
-    console.error("Failed to load crew for hero section:", err);
-    return [];
-  }
-}
-
 export async function HeroSection() {
-  const crew = await getCrew();
+  const crew = await getCrewList();
 
   return (
     <section className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none">
