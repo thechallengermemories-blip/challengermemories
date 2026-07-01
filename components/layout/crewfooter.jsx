@@ -1,72 +1,6 @@
 import Image from "next/image";
-
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const CREW = [
-  {
-    name: "Francis R. Scobee",
-    role: "Commander",
-    id: "CDR",
-    seat: "01",
-    bio: "Test pilot. Vietnam veteran. Led STS-51-L with quiet courage.",
-    img: "/Scobee-fr.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/scobee_francis.pdf",
-  },
-  {
-    name: "Michael J. Smith",
-    role: "Pilot",
-    id: "PLT",
-    seat: "02",
-    bio: "Navy test pilot. Father of three. His first spaceflight.",
-    img: "/Michael_Smith.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/smith_michael.pdf",
-  },
-  {
-    name: "Ronald E. McNair",
-    role: "Mission Specialist",
-    id: "MS1",
-    seat: "03",
-    bio: "Physicist. Saxophonist. Second African American in space.",
-    img: "/Ronald_Erwin_McNair.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/mcnair_ronald.pdf",
-  },
-  {
-    name: "Ellison S. Onizuka",
-    role: "Mission Specialist",
-    id: "MS2",
-    seat: "04",
-    bio: "Air Force colonel. First Asian American in space.",
-    img: "/Ellison_Shoji_Onizuka.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/onizuka_ellison.pdf",
-  },
-  {
-    name: "Judith A. Resnik",
-    role: "Mission Specialist",
-    id: "MS3",
-    seat: "05",
-    bio: "Electrical engineer. Second American woman in space.",
-    img: "/Judith_A._Resnik_official_portrait.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/resnik_judith_with_photo_0.pdf",
-  },
-  {
-    name: "Gregory B. Jarvis",
-    role: "Payload Specialist",
-    id: "PS1",
-    seat: "06",
-    bio: "Satellite engineer for Hughes Aircraft. Dreamed of the cosmos.",
-    img: "/Gregory_Jarvis.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/jarvis.pdf",
-  },
-  {
-    name: "Christa McAuliffe",
-    role: "Teacher in Space",
-    id: "PS2",
-    seat: "07",
-    bio: "New Hampshire schoolteacher. Chosen from 11,000 to teach from orbit.",
-    img: "/ChristaMcAuliffe.webp",
-    bioUrl: "https://www.nasa.gov/wp-content/uploads/2016/01/mcauliffe.pdf",
-  },
-];
+import Link from "next/link";
+import { CREW } from "@/lib/crew-data";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -181,12 +115,10 @@ export function CrewFooter() {
             const firstName = member.name.split(" ").slice(0, -1).join(" ");
 
             return (
-              <a
+              <Link
                 key={member.id}
-                href={member.bioUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Read ${member.name}'s NASA biography`}
+                href={`/crew/${member.slug}`}
+                aria-label={`Read ${member.name}'s biography`}
                 className="cf-card relative aspect-[3/4] rounded-2xl bg-slate-900 border border-white/10 overflow-hidden block"
               >
                 {/* Portrait */}
@@ -227,7 +159,7 @@ export function CrewFooter() {
                   <div className="cf-bio-wrapper">
                     <div className="cf-bio">
                       <p className="font-serif text-[10px] text-slate-300 italic leading-snug mt-2 mb-2">
-                        {member.bio}
+                        {member.shortBio}
                       </p>
                       <span className="font-mono text-[8px] text-sky-400 uppercase tracking-widest border-b border-sky-400/30 pb-0.5 inline-block">
                         View Biography →
@@ -235,7 +167,7 @@ export function CrewFooter() {
                     </div>
                   </div>
                 </div>
-              </a>
+              </Link>
             );
           })}
         </div>
