@@ -76,7 +76,7 @@ export function CrewBiography({ slug }: { slug: string }) {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen w-full bg-[#020617] flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#020617] flex items-center justify-center pt-20">
         <Loader2 className="animate-spin text-sky-400" size={24} />
       </div>
     );
@@ -84,7 +84,7 @@ export function CrewBiography({ slug }: { slug: string }) {
 
   if (status === "not-found") {
     return (
-      <div className="min-h-screen w-full bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen w-full bg-[#020617] text-white flex flex-col items-center justify-center gap-4 pt-20">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-slate-500">
           Crew member not found
         </p>
@@ -97,7 +97,7 @@ export function CrewBiography({ slug }: { slug: string }) {
 
   if (status === "error" || !member) {
     return (
-      <div className="min-h-screen w-full bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
+      <div className="min-h-screen w-full bg-[#020617] text-white flex flex-col items-center justify-center gap-4 pt-20">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-slate-500">
           Something went wrong loading this page
         </p>
@@ -125,7 +125,7 @@ export function CrewBiography({ slug }: { slug: string }) {
       </div>
 
       {/* top nav */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-8 pt-10 flex items-center justify-between">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 md:px-8 pt-28 sm:pt-32 lg:pt-36 flex items-center justify-between">
         <Link
           href="/"
           className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-400 hover:text-sky-400 transition-colors flex items-center gap-2"

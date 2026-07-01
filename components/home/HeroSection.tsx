@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { Crosshair, Globe, Database } from "lucide-react";
-import { CREW } from "@/lib/crew-data";
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -11,7 +11,40 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
   opacity: 0.05 + (i % 5) * 0.03,
 }));
 
-export function HeroSection() {
+interface CrewCardData {
+  slug: string;
+  name: string;
+  role: string;
+  crewId: string;
+  seat: string;
+  img: string;
+  shortBio: string;
+}
+
+async function getCrew(): Promise<CrewCardData[]> {
+  try {
+    // Build an absolute URL for the internal API call — server components
+    // can't fetch relative paths.
+    const h = await headers();
+    const host = h.get("host");
+    const protocol = host?.startsWith("localhost") ? "http" : "https";
+
+    const res = await fetch(`${protocol}://${host}/api/crew`, {
+      next: { revalidate: 60 }, // re-fetch at most once a minute
+    });
+
+    if (!res.ok) return [];
+    const { crew } = await res.json();
+    return crew ?? [];
+  } catch (err) {
+    console.error("Failed to load crew for hero section:", err);
+    return [];
+  }
+}
+
+export async function HeroSection() {
+  const crew = await getCrew();
+
   return (
     <section className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none">
       
@@ -252,64 +285,70 @@ export function HeroSection() {
           <div className="w-12 h-[1px] bg-sky-500/30 mt-2" />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
-          {CREW.map((member) => (
-            <Link
-              key={member.id}
-              href={`/crew/${member.slug}`}
-              className="crew-card relative aspect-[3/4] rounded-2xl bg-slate-900 border border-white/10 overflow-hidden block"
-            >
-              {/* Image Container with precise single gradient overlay */}
-              <div className="absolute inset-0 bg-slate-950">
-                <Image
-                  src={member.img}
-                  alt={member.name}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
-                  priority={true}
-                  className="crew-img object-cover"
-                />
-                {/* Subtle dark bottom gradient to keep names perfectly readable without masking the uniforms */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/25 to-transparent z-10" />
-              </div>
+        {crew.length === 0 ? (
+          <p className="text-center font-mono text-[10px] uppercase tracking-[0.3em] text-slate-600">
+            Crew archive unavailable
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 w-full">
+            {crew.map((member) => (
+              <Link
+                key={member.slug}
+                href={`/crew/${member.slug}`}
+                className="crew-card relative aspect-[3/4] rounded-2xl bg-slate-900 border border-white/10 overflow-hidden block"
+              >
+                {/* Image Container with precise single gradient overlay */}
+                <div className="absolute inset-0 bg-slate-950">
+                  <Image
+                    src={member.img}
+                    alt={member.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
+                    priority={true}
+                    className="crew-img object-cover"
+                  />
+                  {/* Subtle dark bottom gradient to keep names perfectly readable without masking the uniforms */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/25 to-transparent z-10" />
+                </div>
 
-              {/* Badges */}
-              <div className="crew-badges absolute top-3 left-3 right-3 flex justify-between items-center z-20">
-                <span className="font-mono text-[8px] bg-black/40 px-2 py-0.5 rounded border border-white/10 text-sky-400 font-medium tracking-wider">
-                  {member.id}
-                </span>
-                <span className="font-mono text-[8px] text-slate-400">
-                  {member.seat}
-                </span>
-              </div>
-
-              {/* Info Container — sits tightly at the bottom */}
-              <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end z-20">
-                <p className="font-mono text-[8px] tracking-widest text-sky-400 uppercase mb-1">
-                  {member.role}
-                </p>
-                <h3 className="font-serif text-sm sm:text-base font-light text-white leading-tight mb-1">
-                  {member.name.split(" ").slice(-1)[0]}
-                  <span className="crew-firstname text-white/90">
-                    , {member.name.split(" ").slice(0, -1).join(" ")}
+                {/* Badges */}
+                <div className="crew-badges absolute top-3 left-3 right-3 flex justify-between items-center z-20">
+                  <span className="font-mono text-[8px] bg-black/40 px-2 py-0.5 rounded border border-white/10 text-sky-400 font-medium tracking-wider">
+                    {member.crewId}
                   </span>
-                </h3>
+                  <span className="font-mono text-[8px] text-slate-400">
+                    {member.seat}
+                  </span>
+                </div>
 
-                {/* Grid-based dynamic reveal — expands from 0px to auto-height on hover */}
-                <div className="crew-bio-wrapper">
-                  <div className="crew-bio">
-                    <p className="font-serif text-[10px] text-slate-300 italic leading-snug mt-2 mb-2">
-                      {member.shortBio}
-                    </p>
-                    <span className="font-mono text-[8px] text-sky-400 uppercase tracking-widest border-b border-sky-400/30 pb-0.5 inline-block">
-                      View Biography →
+                {/* Info Container — sits tightly at the bottom */}
+                <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col justify-end z-20">
+                  <p className="font-mono text-[8px] tracking-widest text-sky-400 uppercase mb-1">
+                    {member.role}
+                  </p>
+                  <h3 className="font-serif text-sm sm:text-base font-light text-white leading-tight mb-1">
+                    {member.name.split(" ").slice(-1)[0]}
+                    <span className="crew-firstname text-white/90">
+                      , {member.name.split(" ").slice(0, -1).join(" ")}
                     </span>
+                  </h3>
+
+                  {/* Grid-based dynamic reveal — expands from 0px to auto-height on hover */}
+                  <div className="crew-bio-wrapper">
+                    <div className="crew-bio">
+                      <p className="font-serif text-[10px] text-slate-300 italic leading-snug mt-2 mb-2">
+                        {member.shortBio}
+                      </p>
+                      <span className="font-mono text-[8px] text-sky-400 uppercase tracking-widest border-b border-sky-400/30 pb-0.5 inline-block">
+                        View Biography →
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
     </section>
