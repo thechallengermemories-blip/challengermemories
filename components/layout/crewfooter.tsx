@@ -1,20 +1,32 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getCrewList } from "@/lib/get-crew";
 
-// ─── Component ────────────────────────────────────────────────────────────────
+interface CrewCardData {
+  slug: string;
+  name: string;
+  role: string;
+  crewId: string;
+  seat: string;
+  img: string;
+  shortBio: string;
+}
 
-/**
- * CrewFooter
- *
- * A self-contained section that renders the STS-51-L crew cards.
- * Drop it at the bottom of any page — no props required.
- *
- * It ships its own scoped <style> block so it is safe to mount
- * multiple times without class collisions.
- */
+async function fetchCrew(): Promise<CrewCardData[]> {
+  try {
+    const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const res = await fetch(`${base}/api/crew`, { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+
+    const data: { crew: CrewCardData[] } = await res.json();
+    return data.crew ?? [];
+  } catch (err) {
+    console.error("fetchCrew failed:", err);
+    return [];
+  }
+}
+
 export async function CrewFooter() {
-  const crew = await getCrewList();
+  const crew = await fetchCrew();
 
   return (
     <section className="relative w-full bg-[#020617] text-white overflow-hidden">

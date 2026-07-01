@@ -1,7 +1,34 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Crosshair, Globe, Database } from "lucide-react";
-import { getCrewList } from "@/lib/get-crew";
+import { headers } from "next/headers";
+
+interface CrewCardData {
+  slug: string;
+  name: string;
+  role: string;
+  crewId: string;
+  seat: string;
+  img: string;
+  shortBio: string;
+}
+async function fetchCrew(): Promise<CrewCardData[]> {
+  try {
+    const h = await headers();
+    const host = h.get("host");
+    const protocol = host?.startsWith("localhost") ? "http" : "https";
+    const base = `${protocol}://${host}`;
+
+    const res = await fetch(`${base}/api/crew`, { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return data.crew ?? [];
+  } catch (err) {
+    console.error("fetchCrew failed:", err);
+    return [];
+  }
+}
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: i,
@@ -12,7 +39,7 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
 }));
 
 export async function HeroSection() {
-  const crew = await getCrewList();
+  const crew = await fetchCrew();
 
   return (
     <section className="relative min-h-screen w-full bg-[#020617] text-white flex flex-col justify-between overflow-hidden px-6 py-12 md:px-12 lg:px-16 select-none">
