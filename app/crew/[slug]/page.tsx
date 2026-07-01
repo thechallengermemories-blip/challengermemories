@@ -1,37 +1,13 @@
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import { CREW, getCrewMember } from "@/lib/crew-data";
 import { CrewBiography } from "@/components/CrewBiography";
 
-// Pre-render one page per crew member at build time.
-export function generateStaticParams() {
-  return CREW.map((c) => ({ slug: c.slug }));
-}
+// Note: crew list for static params generation now lives in the DB rather
+// than a static array, so this route renders dynamically per-request.
+// (If you want these pre-rendered at build time again, fetch the slug list
+// from MongoDB here inside an async generateStaticParams instead.)
 
 type Params = Promise<{ slug: string }>;
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Params;
-}): Promise<Metadata> {
+export default async function CrewMemberPage({ params }: { params: Params }) {
   const { slug } = await params;
-  const member = getCrewMember(slug);
-  if (!member) return {};
-  return {
-    title: `${member.name} — Challenger Memories`,
-    description: member.shortBio,
-  };
-}
-
-export default async function CrewMemberPage({
-  params,
-}: {
-  params: Params;
-}) {
-  const { slug } = await params;
-  const member = getCrewMember(slug);
-  if (!member) notFound();
-
-  return <CrewBiography member={member} />;
+  return <CrewBiography slug={slug} />;
 }

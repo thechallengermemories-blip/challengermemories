@@ -1,23 +1,120 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Play, ImageIcon, ArrowLeft, ArrowRight, FileText } from "lucide-react";
-import { CREW, parseBiography, type CrewMember } from "@/lib/crew-data";
+import { Play, ImageIcon, ArrowLeft, ArrowRight, FileText, Loader2 } from "lucide-react";
+import { parseBiography, type MediaItem } from "@/lib/crew-data";
 
 function getYouTubeEmbed(url: string) {
-  // Accepts youtu.be, watch?v=, or already-embedded links and normalizes to an embeddable src.
   const watch = url.match(/(?:youtu\.be\/|v=)([\w-]{11})/);
   if (watch) return `https://www.youtube.com/embed/${watch[1]}`;
   return url;
 }
 
-export function CrewBiography({ member }: { member: CrewMember }) {
+// Shape returned by the API — matches the Mongo schema (crewId instead of id).
+interface ApiCrewMember {
+  slug: string;
+  name: string;
+  fullTitle: string;
+  role: string;
+  crewId: string;
+  seat: string;
+  img: string;
+  shortBio: string;
+  rawBiography: string;
+  media: MediaItem[];
+}
+
+interface CrewListItem {
+  slug: string;
+  name: string;
+  seat: string;
+}
+
+export function CrewBiography({ slug }: { slug: string }) {
+  const [member, setMember] = useState<ApiCrewMember | null>(null);
+  const [crewList, setCrewList] = useState<CrewListItem[]>([]);
+  const [status, setStatus] = useState<"loading" | "ready" | "not-found" | "error">("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setStatus("loading");
+      try {
+        const [memberRes, listRes] = await Promise.all([
+          fetch(`/api/crew/${slug}`),
+          fetch(`/api/crew`),
+        ]);
+
+        if (memberRes.status === 404) {
+          if (!cancelled) setStatus("not-found");
+          return;
+        }
+        if (!memberRes.ok || !listRes.ok) throw new Error("Request failed");
+
+        const { member } = await memberRes.json();
+        const { crew } = await listRes.json();
+
+        if (!cancelled) {
+          setMember(member);
+          setCrewList(crew);
+          setStatus("ready");
+        }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) setStatus("error");
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen w-full bg-[#020617] flex items-center justify-center">
+        <Loader2 className="animate-spin text-sky-400" size={24} />
+      </div>
+    );
+  }
+
+  if (status === "not-found") {
+    return (
+      <div className="min-h-screen w-full bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-slate-500">
+          Crew member not found
+        </p>
+        <Link href="/" className="text-sky-400 font-mono text-xs uppercase tracking-widest">
+          ← Back to Crew Archive
+        </Link>
+      </div>
+    );
+  }
+
+  if (status === "error" || !member) {
+    return (
+      <div className="min-h-screen w-full bg-[#020617] text-white flex flex-col items-center justify-center gap-4">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-slate-500">
+          Something went wrong loading this page
+        </p>
+        <Link href="/" className="text-sky-400 font-mono text-xs uppercase tracking-widest">
+          ← Back to Crew Archive
+        </Link>
+      </div>
+    );
+  }
+
   const sections = parseBiography(member.rawBiography);
   const images = member.media.filter((m) => m.type === "image");
   const videos = member.media.filter((m) => m.type === "video");
 
-  const idx = CREW.findIndex((c) => c.slug === member.slug);
-  const prev = CREW[(idx - 1 + CREW.length) % CREW.length];
-  const next = CREW[(idx + 1) % CREW.length];
+  const idx = crewList.findIndex((c) => c.slug === member.slug);
+  const prev = crewList.length ? crewList[(idx - 1 + crewList.length) % crewList.length] : null;
+  const next = crewList.length ? crewList[(idx + 1) % crewList.length] : null;
 
   return (
     <article className="relative min-h-screen w-full bg-[#020617] text-white overflow-hidden">
@@ -37,7 +134,7 @@ export function CrewBiography({ member }: { member: CrewMember }) {
           Crew Archive
         </Link>
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">
-          STS-51-L · {member.id} · Seat {member.seat}
+          STS-51-L · {member.crewId} · Seat {member.seat}
         </span>
       </div>
 
@@ -161,26 +258,28 @@ export function CrewBiography({ member }: { member: CrewMember }) {
       )}
 
       {/* prev / next crew navigation */}
-      <nav className="relative z-10 max-w-5xl mx-auto px-6 md:px-8 pb-20 grid grid-cols-2 gap-4">
-        <Link
-          href={`/crew/${prev.slug}`}
-          className="group rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4 hover:border-sky-500/30 hover:bg-white/[0.05] transition-colors"
-        >
-          <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500 group-hover:text-sky-400 mb-1">
-            <ArrowLeft size={10} /> Previous
-          </span>
-          <span className="font-serif text-sm text-white">{prev.name}</span>
-        </Link>
-        <Link
-          href={`/crew/${next.slug}`}
-          className="group rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4 text-right hover:border-sky-500/30 hover:bg-white/[0.05] transition-colors"
-        >
-          <span className="flex items-center justify-end gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500 group-hover:text-sky-400 mb-1">
-            Next <ArrowRight size={10} />
-          </span>
-          <span className="font-serif text-sm text-white">{next.name}</span>
-        </Link>
-      </nav>
+      {prev && next && (
+        <nav className="relative z-10 max-w-5xl mx-auto px-6 md:px-8 pb-20 grid grid-cols-2 gap-4">
+          <Link
+            href={`/crew/${prev.slug}`}
+            className="group rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4 hover:border-sky-500/30 hover:bg-white/[0.05] transition-colors"
+          >
+            <span className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500 group-hover:text-sky-400 mb-1">
+              <ArrowLeft size={10} /> Previous
+            </span>
+            <span className="font-serif text-sm text-white">{prev.name}</span>
+          </Link>
+          <Link
+            href={`/crew/${next.slug}`}
+            className="group rounded-xl border border-white/10 bg-white/[0.02] px-4 py-4 text-right hover:border-sky-500/30 hover:bg-white/[0.05] transition-colors"
+          >
+            <span className="flex items-center justify-end gap-2 font-mono text-[9px] uppercase tracking-[0.3em] text-slate-500 group-hover:text-sky-400 mb-1">
+              Next <ArrowRight size={10} />
+            </span>
+            <span className="font-serif text-sm text-white">{next.name}</span>
+          </Link>
+        </nav>
+      )}
     </article>
   );
 }
