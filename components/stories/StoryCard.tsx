@@ -1,11 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Quote, ArrowUpRight, Clock } from 'lucide-react';
+import { Quote, ArrowUpRight, Clock, MapPin } from 'lucide-react';
 
 export const StoryCard = ({ story }: { story: any }) => {
   // Use story.id or story._id depending on your database schema
   const storyId = story.id || story._id;
+
+  // Build a clean location string from whatever fields are present
+  const location = [story.State, story.country].filter(Boolean).join(", ");
 
   return (
     <Link href={`/stories/${storyId}`} className="group block h-full">
@@ -66,16 +69,19 @@ export const StoryCard = ({ story }: { story: any }) => {
           <div className="mt-auto">
             <div className="flex items-center justify-between pt-6 border-t border-white/5">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white uppercase ring-2 ring-white/5">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-[10px] font-bold text-white uppercase ring-2 ring-white/5 shrink-0">
                   {story.name?.charAt(0) || 'A'}
                 </div>
                 <div className="flex flex-col">
                   <span className="text-xs text-slate-200 font-medium tracking-wide">
                      {story.name || 'Anonymous Witness'}
                   </span>
-                  {/* <span className="text-[10px] text-sky-500/60 font-mono uppercase tracking-tighter">
-                    Verified Contributor
-                  </span> */}
+                  {location && (
+                    <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                      <MapPin size={9} className="text-slate-600 shrink-0" />
+                      {location}
+                    </span>
+                  )}
                 </div>
               </div>
 

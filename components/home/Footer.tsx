@@ -24,7 +24,7 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
-              A digital sanctuary dedicated to the brave crews of Challenger. Their legacy continues to inspire the stars in all of
+              A digital sanctuary dedicated to the brave crew of Challenger. Their legacy continues to inspire the stars in all of
               us.
             </p>
           </div>
@@ -35,16 +35,20 @@ export const Footer = () => {
               Explore
             </h4>
             <ul className="space-y-4">
-              {["Challenger", "Stories", "About"].map((item) => (
-                <li key={item}>
-                  <Link
-                    href={`/${item.toLowerCase()}`}
-                    className="text-slate-500 hover:text-sky-400 text-sm transition-colors uppercase tracking-widest"
-                  >
-                    {item}
-                  </Link>
-                </li>
-              ))}
+             {[
+            { label: "Challenger", href: "/challenger" },
+            { label: "Memories", href: "/stories" },
+            { label: "About", href: "/about" },
+          ].map(({ label, href }) => (
+            <li key={label}>
+              <Link
+                href={href}
+                className="text-slate-500 hover:text-sky-400 text-sm transition-colors uppercase tracking-widest"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
             </ul>
           </div>
 
