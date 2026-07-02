@@ -7,7 +7,7 @@ import { GraduationCap, Code, Telescope, MapPin, ArrowUpRight, Aperture, Eye } f
 const CREATORS = [
   {
     name: "Andrea Hamel",
-    role: "Special Education Teacher & Tutor",
+    role: "Teacher And Archival Researcher",
     location: "Massachusetts, USA",
     bio: "Massachusetts-licensed educator and independent archival researcher. She served as Grace Corrigan’s personal assistant and conducted the preliminary processing of the Christa Corrigan McAuliffe Collection before its donation to the Archives at Framingham State University. She founded and leads Challenger Memories, preserving the history, personal stories, and legacy of the Space Shuttle Challenger STS-51-L crew.",
     icon: GraduationCap,
