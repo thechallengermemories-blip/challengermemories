@@ -6,15 +6,15 @@ import { GraduationCap, Code, Telescope, MapPin, ArrowUpRight } from 'lucide-rea
 
 const CREATORS = [
   {
-    name: "Andrea Hamel",
-    role: "Special Education Teacher & Tutor",
-    location: "Massachusetts, USA",
-    bio: "Dedicated educator and mentor. Inspired by Christa McAuliffe's mission to bridge teaching with the cosmos, Andrea brings a heartfelt pedagogical perspective to this preservation project.",
-    icon: GraduationCap,
-    link: null,
-    nodeId: "NODE // 01",
-    coordinates: "42.3601° N, 71.0589° W"
-  },
+  name: "Andrea Hamel",
+  role: "Special Education Teacher & Tutor",
+  location: "Massachusetts, USA",
+  bio: "Massachusetts-licensed educator and independent archival researcher. She served as Grace Corrigan’s personal assistant and conducted the preliminary processing of the Christa Corrigan McAuliffe Collection before its donation to the Archives at Framingham State University. She founded and leads Challenger Memories, preserving the history, personal stories, and legacy of the Space Shuttle Challenger STS-51-L crew.",
+  icon: GraduationCap,
+  link: null,
+  nodeId: "NODE // 01",
+  coordinates: "42.3601° N, 71.0589° W"
+},
   {
     name: "Vivek Joshi",
     role: "Lead Full-Stack Developer",
