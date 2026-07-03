@@ -133,13 +133,13 @@ const StoriesPreviewList = () => {
                 <Quote className="w-6 h-6 text-sky-500" />
             </div>
             <div>
-                <h4 className="text-xl text-white font-medium">Have a story to share?</h4>
+                <h4 className="text-xl text-white font-medium">Have a memory to share?</h4>
                 <p className="text-slate-400 text-sm">Your memory helps keep their legacy alive for future generations.</p>
             </div>
           </div>
           <Link href="/share-story">
             <button className="px-8 py-4 bg-white text-black hover:bg-sky-400 hover:text-white transition-all duration-300 rounded-full font-semibold text-sm">
-                Write Your Story
+                Share your memories
             </button>
           </Link>
         </motion.div>
