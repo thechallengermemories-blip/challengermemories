@@ -1,30 +1,61 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Quote, ArrowUpRight, Clock, MapPin } from 'lucide-react';
+import { Quote, ArrowUpRight, Clock, MapPin, Film } from 'lucide-react';
 
 export const StoryCard = ({ story }: { story: any }) => {
   // Use story.id or story._id depending on your database schema
   const storyId = story.id || story._id;
 
   // Build a clean location string from whatever fields are present
-  const location = [story.State, story.country].filter(Boolean).join(", ");
+  // (some records use `State`, others use lowercase `state`)
+  const location = [story.State || story.state, story.country].filter(Boolean).join(", ");
+
+  // Resolve which media to show in the card:
+  // 1) first item in the `media` array (image or video), if present
+  // 2) fall back to `imageUrl` if it's a non-empty string
+  // 3) otherwise no media -> placeholder
+  const firstMedia = Array.isArray(story.media) ? story.media[0] : undefined;
+
+  const displayMedia = firstMedia?.url
+    ? { url: firstMedia.url, type: firstMedia.type === 'video' ? 'video' : 'image' }
+    : story.imageUrl
+    ? { url: story.imageUrl, type: 'image' as const }
+    : null;
 
   return (
     <Link href={`/stories/${storyId}`} className="group block h-full">
       <div className="relative h-full bg-[#0f172a]/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 hover:border-sky-500/50 hover:shadow-[0_0_40px_rgba(56,189,248,0.1)] flex flex-col">
         
-        {/* Image Section */}
+        {/* Image / Video Section */}
         <div className="relative h-64 w-full overflow-hidden">
-          {story.imageUrl ? (
+          {displayMedia ? (
             <>
-              <Image 
-                src={story.imageUrl} 
-                alt={story.title}
-                fill
-                className="object-cover transition-transform duration-1000 group-hover:scale-110"
-              />
-              {/* Dark Gradient Overlay for Image Depth */}
+              {displayMedia.type === 'video' ? (
+                <>
+                  <video
+                    src={displayMedia.url}
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    muted
+                    playsInline
+                    preload="metadata"
+                  />
+                  {/* Play/film indicator so it reads as a video, not a broken image */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="p-3 rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
+                      <Film size={20} className="text-white/90" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <Image
+                  src={displayMedia.url}
+                  alt={story.title}
+                  fill
+                  className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+              )}
+              {/* Dark Gradient Overlay for Depth */}
               <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/20 to-transparent" />
             </>
           ) : (
