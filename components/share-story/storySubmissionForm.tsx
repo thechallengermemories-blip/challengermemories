@@ -14,7 +14,7 @@ import { ArchiveGalleryPicker } from "./ArchiveGalleryPicker";
 const UPLOAD_CONFIG = {
   maxFiles: 3,
   maxImageSizeMB: 10,
-  maxVideoSizeMB: 10,
+  maxVideoSizeMB: 60,
   acceptedImageTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
   acceptedVideoTypes: ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"],
 };
@@ -441,7 +441,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                           Add a photograph, drawing, or audio/video clip
                         </p>
                         <p className="text-slate-600 text-[9px] mt-1 font-mono tracking-wider">
-                          Max 10MB each · JPG, PNG, WEBP, GIF, MP4, MOV
+                          Images up to 10MB · Videos up to 60MB · JPG, PNG, WEBP, GIF, MP4, MOV
                         </p>
                       </div>
                     </div>
