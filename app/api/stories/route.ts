@@ -56,6 +56,7 @@ function validateFileSize(file: File, type: "image" | "video"): string | null {
 // POST
 // ─────────────────────────────────────────────
 export async function POST(req: Request) {
+    console.log("🟢 [stories POST] JSON route hit — v2-direct-upload");
   try {
     await connectDB();
     const formData = await req.formData();

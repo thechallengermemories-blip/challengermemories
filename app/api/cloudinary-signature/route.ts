@@ -8,6 +8,8 @@ const MAX_FILES = 3;
 type MediaItem = { url: string; type: "image" | "video" };
 
 export async function POST(req: Request) {
+      console.log("🟢 [cloudinary-signature] called");
+
   try {
     await connectDB();
     const body = await req.json();

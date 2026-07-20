@@ -21,6 +21,7 @@ export function uploadFileDirectToCloudinary(
   onProgress?: (pct: number) => void
 ): Promise<string> {
   return new Promise((resolve, reject) => {
+    console.log("🟢 [direct upload] target URL:", url);
     const xhr = new XMLHttpRequest();
     const url = `https://api.cloudinary.com/v1_1/${sigData.cloudName}/${resourceType}/upload`;
 

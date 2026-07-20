@@ -294,6 +294,9 @@ export const StoryForm = () => {
         media: mediaResults,
       };
 
+      console.log("🟢 [client] mediaResults about to send:", mediaResults);
+console.log("🟢 [client] payload size (bytes):", new Blob([JSON.stringify(payload)]).size);
+
       const response = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
