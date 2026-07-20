@@ -7,18 +7,18 @@ import {
   Loader2, Sparkles, Film, FileImage, Plus, AlertCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { compressMedia } from "@/lib/compressMedia"; // ← compression utility
+import { compressMedia } from "@/lib/compressMedia";
+import { uploadFileDirectToCloudinary } from "@/lib/uploadToCloudinaryDirect";
 
 // ─────────────────────────────────────────────
 // CONFIGURATION — tweak these freely
 // ─────────────────────────────────────────────
 const UPLOAD_CONFIG = {
   maxFiles: 3,
-  maxImageSizeMB: 10,
-  maxVideoSizeMB: 10,
+  maxImageSizeMB: 20,
+  maxVideoSizeMB: 60,
   acceptedImageTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
   acceptedVideoTypes: ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"],
-  cloudinaryFolder: "tribute_stories",
 };
 
 type MediaFile = {
@@ -30,7 +30,7 @@ type MediaFile = {
 };
 
 // Submission phases shown in the button / status bar
-type Phase = "idle" | "compressing" | "uploading";
+type Phase = "idle" | "compressing" | "uploading" | "saving";
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -106,9 +106,11 @@ function MediaThumbnail({ media, onRemove }: { media: MediaFile; onRemove: (id: 
 }
 
 // ─────────────────────────────────────────────
-// Compression progress bar
+// Generic progress bar (used for both compression and upload)
 // ─────────────────────────────────────────────
-function CompressionBar({ index, total, pct }: { index: number; total: number; pct: number }) {
+function ProgressBar({
+  label, index, total, pct,
+}: { label: string; index: number; total: number; pct: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
@@ -118,7 +120,7 @@ function CompressionBar({ index, total, pct }: { index: number; total: number; p
     >
       <div className="flex justify-between items-center">
         <span className="text-[9px] font-mono text-sky-400/70 uppercase tracking-widest">
-          Compressing file {index} of {total}…
+          {label} file {index} of {total}…
         </span>
         <span className="text-[9px] font-mono text-slate-500">{Math.round(pct)}%</span>
       </div>
@@ -143,8 +145,8 @@ export const StoryForm = () => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  // Compression progress: { fileIndex, pct }
   const [compressionProgress, setCompressionProgress] = useState<{ index: number; pct: number } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ index: number; pct: number } | null>(null);
 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -152,7 +154,6 @@ export const StoryForm = () => {
 
   const isSubmitting = phase !== "idle";
 
-  // Scroll to top of section on success
   useEffect(() => {
     if (isSuccess && sectionRef.current) {
       sectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -228,18 +229,17 @@ export const StoryForm = () => {
       return;
     }
 
-    // Capture BEFORE any await — React nullifies e.currentTarget after the
-    // first yield, so reading it after compression would throw.
+    // Capture form field values BEFORE any await.
     const formEl = e.currentTarget;
+    const formValues = new FormData(formEl);
 
     try {
-      // ── PHASE 1: Compress ──────────────────────────────────────────────────
+      // ── PHASE 1: Compress locally in the browser ──────────────────────────
       setPhase("compressing");
       setCompressionProgress(null);
 
       const compressedFiles = await Promise.all(
         mediaFiles.map(async (m, i) => {
-          // For videos, stream per-file progress into the progress bar
           const onProgress = m.type === "video"
             ? (pct: number) => setCompressionProgress({ index: i + 1, pct })
             : undefined;
@@ -251,22 +251,53 @@ export const StoryForm = () => {
         })
       );
 
-      // ── PHASE 2: Upload ────────────────────────────────────────────────────
+      // ── PHASE 2: Upload each file DIRECTLY to Cloudinary ───────────────────
+      // Files never pass through our own /api route, so there's no
+      // Vercel function-payload limit to worry about here.
       setPhase("uploading");
       setCompressionProgress(null);
 
-      const formData = new FormData(formEl);
-      formData.append("mission", "challenger");
+      const mediaResults: { url: string; type: "image" | "video" }[] = [];
 
-      compressedFiles.forEach((file, i) => {
-        formData.append(`media_${i}`, file);                   // compressed file
-        formData.append(`media_${i}_type`, mediaFiles[i].type); // original type tag
-      });
-      formData.append("media_count", String(compressedFiles.length));
+      for (let i = 0; i < compressedFiles.length; i++) {
+        const type = mediaFiles[i].type;
+        setUploadProgress({ index: i + 1, pct: 0 });
+
+        const sigRes = await fetch("/api/cloudinary-signature", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type }),
+        });
+        if (!sigRes.ok) throw new Error("Could not authorize upload. Please try again.");
+        const sigData = await sigRes.json();
+
+        const url = await uploadFileDirectToCloudinary(
+          compressedFiles[i],
+          type,
+          sigData,
+          (pct) => setUploadProgress({ index: i + 1, pct })
+        );
+
+        mediaResults.push({ url, type });
+        setUploadProgress({ index: i + 1, pct: 100 });
+      }
+
+      // ── PHASE 3: Send a small JSON payload (no files) to our own API ───────
+      setPhase("saving");
+
+      const payload = {
+        name: formValues.get("name"),
+        email: formValues.get("email"),
+        title: formValues.get("title"),
+        narrative: formValues.get("narrative"),
+        mission: "challenger",
+        media: mediaResults,
+      };
 
       const response = await fetch("/api/stories", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -278,12 +309,13 @@ export const StoryForm = () => {
       } else {
         setGlobalError(result.error || "Submission failed. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submission error:", err);
-      setGlobalError("Network error. Please try again.");
+      setGlobalError(err?.message || "Network error. Please try again.");
     } finally {
       setPhase("idle");
       setCompressionProgress(null);
+      setUploadProgress(null);
     }
   };
 
@@ -292,6 +324,7 @@ export const StoryForm = () => {
     idle: <><Sparkles size={14} /> Commit to Archive <Send size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /></>,
     compressing: <><Loader2 size={16} className="animate-spin" /> Compressing…</>,
     uploading:   <><Loader2 size={16} className="animate-spin" /> Uploading…</>,
+    saving:      <><Loader2 size={16} className="animate-spin" /> Saving…</>,
   }[phase];
 
   // ── Success ────────────────────────────────────────────────────────────────
@@ -401,13 +434,26 @@ export const StoryForm = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Compression progress bar (videos only, shown during submit) */}
+                {/* Compression progress */}
                 <AnimatePresence>
                   {phase === "compressing" && compressionProgress && (
-                    <CompressionBar
+                    <ProgressBar
+                      label="Compressing"
                       index={compressionProgress.index}
                       total={mediaFiles.length}
                       pct={compressionProgress.pct}
+                    />
+                  )}
+                </AnimatePresence>
+
+                {/* Upload progress (direct-to-Cloudinary) */}
+                <AnimatePresence>
+                  {phase === "uploading" && uploadProgress && (
+                    <ProgressBar
+                      label="Uploading"
+                      index={uploadProgress.index}
+                      total={mediaFiles.length}
+                      pct={uploadProgress.pct}
                     />
                   )}
                 </AnimatePresence>
