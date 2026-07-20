@@ -9,8 +9,8 @@ import { sendStoryAlert } from "@/lib/sendStoryAlert";
 // ─────────────────────────────────────────────
 const UPLOAD_CONFIG = {
   maxFiles: 3,
-  maxImageSizeMB: 10,
-  maxVideoSizeMB: 10,
+  maxImageSizeMB: 20,
+  maxVideoSizeMB: 60,
   cloudinaryFolder: "tribute_stories",
 };
 
