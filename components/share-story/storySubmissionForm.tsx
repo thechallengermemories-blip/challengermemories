@@ -156,18 +156,19 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
       setPhase("compressing");
       setCompressionProgress(null);
 
-      const compressedFiles = await Promise.all(
-        uploads.map(async (m, i) => {
-          const onProgress = m.type === "video"
-            ? (pct: number) => setCompressionProgress({ index: i + 1, pct })
-            : undefined;
+const compressedFiles = await Promise.all(
+  uploads.map(async (m, i) => {
+    setCompressionProgress({ index: i + 1, pct: 0 });
 
-          setCompressionProgress({ index: i + 1, pct: 0 });
-          const compressed = await compressMedia(m.file as File, m.type, onProgress);
-          setCompressionProgress({ index: i + 1, pct: 100 });
-          return compressed;
-        })
-      );
+    // Videos are never re-encoded client-side — upload as-is so audio
+    // can never be dropped. Only images go through compressMedia.
+    const compressed =
+      m.type === "video" ? (m.file as File) : await compressMedia(m.file as File, m.type);
+
+    setCompressionProgress({ index: i + 1, pct: 100 });
+    return compressed;
+  })
+);
 
       // ── PHASE 2: Upload compressed files directly to Cloudinary ──
       setPhase("uploading");
