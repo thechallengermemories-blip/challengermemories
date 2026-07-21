@@ -128,7 +128,6 @@ export async function compressVideo(
   file: File,
   onProgress?: (pct: number) => void
 ): Promise<File> {
-  // ── Pick the best supported MIME type ─────────────────────────────────────
   const mimeType = VIDEO_CONFIG.preferredMimeTypes.find((m) =>
     MediaRecorder.isTypeSupported(m)
   );
@@ -147,7 +146,6 @@ export async function compressVideo(
     videoEl.onloadedmetadata = async () => {
       const duration = videoEl.duration;
 
-      // ── Compute canvas size ──────────────────────────────────────────────
       let vw = videoEl.videoWidth;
       let vh = videoEl.videoHeight;
       const maxD = VIDEO_CONFIG.maxDimension;
@@ -162,29 +160,58 @@ export async function compressVideo(
         }
       }
 
-      // ── Set up canvas capture ────────────────────────────────────────────
       const canvas = document.createElement("canvas");
       canvas.width = vw;
       canvas.height = vh;
       const ctx = canvas.getContext("2d");
       if (!ctx) return reject(new Error("Canvas context unavailable"));
 
-      // captureStream is non-standard but supported in all modern browsers
       const stream = (canvas as any).captureStream(VIDEO_CONFIG.fps) as MediaStream;
 
-      // ── Attempt to capture audio track from the video element ────────────
+      // ── Attempt to capture audio, and VERIFY it actually landed ───────────
+      let audioAttached = false;
+      let audioCtx: AudioContext | null = null;
+
       try {
-        const audioCtx = new AudioContext();
+        audioCtx = new AudioContext();
+
+        // AudioContext starts "suspended" under browser autoplay policy —
+        // if we don't resume it, the graph produces silence with no error.
+        if (audioCtx.state === "suspended") {
+          await audioCtx.resume();
+        }
+
         const source = audioCtx.createMediaElementSource(videoEl);
         const dest = audioCtx.createMediaStreamDestination();
         source.connect(dest);
-        source.connect(audioCtx.destination); // keep playback audio live
-        dest.stream.getAudioTracks().forEach((t) => stream.addTrack(t));
-      } catch {
-        // Audio capture may fail on some browsers/OS — video-only is fine
+        source.connect(audioCtx.destination);
+
+        const audioTracks = dest.stream.getAudioTracks();
+        if (audioTracks.length > 0 && audioCtx.state === "running") {
+          audioTracks.forEach((t) => stream.addTrack(t));
+          audioAttached = true;
+        } else {
+          console.warn(
+            "[compressVideo] Audio context not running or no tracks produced — state:",
+            audioCtx.state,
+            "tracks:",
+            audioTracks.length
+          );
+        }
+      } catch (err) {
+        console.warn("[compressVideo] Audio capture threw — falling back to original file.", err);
       }
 
-      // ── MediaRecorder ────────────────────────────────────────────────────
+      // ── If we can't confirm real audio, bail out to the untouched file. ───
+      // Compression is a nice-to-have; losing audio is not acceptable.
+      if (!audioAttached) {
+        URL.revokeObjectURL(videoEl.src);
+        audioCtx?.close().catch(() => {});
+        console.warn("[compressVideo] Skipping compression — uploading original file to guarantee audio.");
+        resolve(file);
+        return;
+      }
+
       const chunks: Blob[] = [];
       const recorder = new MediaRecorder(stream, {
         mimeType,
@@ -198,14 +225,17 @@ export async function compressVideo(
 
       recorder.onstop = () => {
         URL.revokeObjectURL(videoEl.src);
+        audioCtx?.close().catch(() => {});
         const blob = new Blob(chunks, { type: mimeType.split(";")[0] });
         const outName = file.name.replace(/\.[^.]+$/, ".webm");
         resolve(new File([blob], outName, { type: "video/webm" }));
       };
 
-      recorder.onerror = (e) => reject((e as any).error ?? new Error("MediaRecorder error"));
+      recorder.onerror = (e) => {
+        audioCtx?.close().catch(() => {});
+        reject((e as any).error ?? new Error("MediaRecorder error"));
+      };
 
-      // ── Draw loop: paint each frame to canvas ────────────────────────────
       let animFrame: number;
 
       const drawFrame = () => {
@@ -221,8 +251,7 @@ export async function compressVideo(
         recorder.stop();
       };
 
-      // ── Start ────────────────────────────────────────────────────────────
-      recorder.start(100); // collect data every 100 ms
+      recorder.start(100);
       videoEl.play().then(drawFrame).catch(reject);
     };
 
