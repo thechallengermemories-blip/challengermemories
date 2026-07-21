@@ -7,7 +7,8 @@ import {
   Loader2, Sparkles, Film, AlertCircle, Bookmark, BookmarkX
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { compressMedia } from "@/lib/compressMedia"; // Ensure path is configured
+import { compressMedia } from "@/lib/compressMedia";
+import { uploadFileDirectToCloudinary } from "@/lib/uploadToCloudinaryDirect";
 import { LocationField } from "@/components/location/LocationField";
 import { ArchiveGalleryPicker } from "./ArchiveGalleryPicker";
 
@@ -29,7 +30,7 @@ type MediaFile = {
   archivePath?: string; // only present for archive picks, e.g. "/archive-images/launch-01.jpg"
 };
 
-type Phase = "idle" | "compressing" | "uploading";
+type Phase = "idle" | "compressing" | "uploading" | "saving";
 
 interface StoryFormProps {
   selectedPrompt: string | null;
@@ -42,6 +43,7 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [compressionProgress, setCompressionProgress] = useState<{ index: number; pct: number } | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ index: number; pct: number } | null>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -142,12 +144,15 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
     }
 
     const formEl = e.currentTarget;
+    const formValues = new FormData(formEl);
+    const formEntries = Object.fromEntries(formValues.entries());
 
-    // Separate uploads (need compression) from archive picks (just static paths)
+    // Separate local uploads from pre-existing archive selections
     const uploads = mediaFiles.filter((m) => m.source === "upload");
     const archivePicks = mediaFiles.filter((m) => m.source === "archive");
 
     try {
+      // ── PHASE 1: Compress local files locally in the browser ──
       setPhase("compressing");
       setCompressionProgress(null);
 
@@ -164,29 +169,52 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
         })
       );
 
+      // ── PHASE 2: Upload compressed files directly to Cloudinary ──
       setPhase("uploading");
       setCompressionProgress(null);
+      setUploadProgress(null);
 
-      const formData = new FormData(formEl);
-      formData.append("mission", "challenger");
-      if (selectedPrompt) {
-        formData.append("selected_prompt", selectedPrompt);
+      const mediaResults: { url: string; type: "image" | "video" }[] = [];
+
+      for (let i = 0; i < compressedFiles.length; i++) {
+        const type = uploads[i].type;
+        setUploadProgress({ index: i + 1, pct: 0 });
+
+        const sigRes = await fetch("/api/cloudinary-signature", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type }),
+        });
+        if (!sigRes.ok) throw new Error("Could not authorize upload. Please try again.");
+        const sigData = await sigRes.json();
+
+        const url = await uploadFileDirectToCloudinary(
+          compressedFiles[i],
+          type,
+          sigData,
+          (pct) => setUploadProgress({ index: i + 1, pct })
+        );
+
+        mediaResults.push({ url, type });
+        setUploadProgress({ index: i + 1, pct: 100 });
       }
 
-      compressedFiles.forEach((file, i) => {
-        formData.append(`media_${i}`, file);
-        formData.append(`media_${i}_type`, uploads[i].type);
-      });
-      formData.append("media_count", String(compressedFiles.length));
+      // ── PHASE 3: Save metadata via a small JSON payload to the database ──
+      setPhase("saving");
+      setUploadProgress(null);
 
-      archivePicks.forEach((m, i) => {
-        formData.append(`archive_media_${i}`, m.archivePath as string);
-      });
-      formData.append("archive_media_count", String(archivePicks.length));
+      const payload = {
+        ...formEntries,
+        mission: "challenger",
+        selectedPrompt: selectedPrompt || undefined,
+        media: mediaResults,
+        archiveMedia: archivePicks.map((m) => m.archivePath),
+      };
 
       const response = await fetch("/api/stories", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -201,12 +229,13 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
       } else {
         setGlobalError(result.error || "Submission failed. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submission error:", err);
-      setGlobalError("Network error. Please try again.");
+      setGlobalError(err?.message || "Network error. Please try again.");
     } finally {
       setPhase("idle");
       setCompressionProgress(null);
+      setUploadProgress(null);
     }
   };
 
@@ -225,6 +254,11 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
     uploading: (
       <>
         <Loader2 size={16} className="animate-spin" /> Uploading…
+      </>
+    ),
+    saving: (
+      <>
+        <Loader2 size={16} className="animate-spin" /> Saving…
       </>
     ),
   }[phase];
@@ -413,6 +447,24 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
                       <div
                         className="h-full bg-sky-500/60 transition-all duration-150 ease-out"
                         style={{ width: `${compressionProgress.pct}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Progress Bar */}
+                {phase === "uploading" && uploadProgress && (
+                  <div className="space-y-1.5 p-3 rounded-lg bg-white/[0.02] border border-white/5">
+                    <div className="flex justify-between items-center text-[9px] font-mono">
+                      <span className="text-sky-400 uppercase tracking-widest">
+                        Uploading file {uploadProgress.index} of {mediaFiles.filter((m) => m.source === "upload").length}…
+                      </span>
+                      <span className="text-slate-500">{Math.round(uploadProgress.pct)}%</span>
+                    </div>
+                    <div className="h-0.5 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-sky-500/60 transition-all duration-150 ease-out"
+                        style={{ width: `${uploadProgress.pct}%` }}
                       />
                     </div>
                   </div>
