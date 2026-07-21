@@ -1,113 +1,71 @@
+// Place at: app/api/stories/route.ts
 import { NextResponse } from "next/server";
 import { connectDB, Story } from "../../../lib/db";
-import cloudinary from "../../../lib/cloudinary";
 import { sendStoryAlert } from "@/lib/sendStoryAlert";
 
+const MAX_FILES = 3;
 
-// ─────────────────────────────────────────────
-// CONFIG — keep in sync with StoryForm.tsx
-// ─────────────────────────────────────────────
-const UPLOAD_CONFIG = {
-  maxFiles: 3,
-  maxImageSizeMB: 20,
-  maxVideoSizeMB: 60,
-  cloudinaryFolder: "tribute_stories",
-};
+type MediaItem = { url: string; type: "image" | "video" };
 
-// ─────────────────────────────────────────────
-// Helper: upload a single buffer to Cloudinary
-// ─────────────────────────────────────────────
-async function uploadToCloudinary(
-  buffer: Buffer,
-  mediaType: "image" | "video"
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream(
-        {
-          folder: UPLOAD_CONFIG.cloudinaryFolder,
-          resource_type: mediaType,
-          ...(mediaType === "video" && {
-            eager: [{ format: "mp4", quality: "auto" }],
-            eager_async: true,
-          }),
-        },
-        (error, result) => {
-          if (error || !result) return reject(error ?? new Error("Upload failed"));
-          resolve(result.secure_url);
-        }
-      )
-      .end(buffer);
-  });
-}
-
-// ─────────────────────────────────────────────
-// Server-side size validation
-// ─────────────────────────────────────────────
-function validateFileSize(file: File, type: "image" | "video"): string | null {
-  const limitMB = type === "video" ? UPLOAD_CONFIG.maxVideoSizeMB : UPLOAD_CONFIG.maxImageSizeMB;
-  if (file.size > limitMB * 1024 * 1024) {
-    return `${type === "video" ? "Video" : "Image"} "${file.name}" exceeds the ${limitMB} MB limit.`;
-  }
-  return null;
-}
-
-// ─────────────────────────────────────────────
-// POST
-// ─────────────────────────────────────────────
 export async function POST(req: Request) {
-    console.log("🟢 [stories POST] JSON route hit — v2-direct-upload");
   try {
     await connectDB();
-    const formData = await req.formData();
+    const body = await req.json();
 
-    const name      = formData.get("name");
-    const email     = formData.get("email");
-    const title     = formData.get("title");
-    const narrative = formData.get("narrative");
-    const mission   = formData.get("mission");
-    const category  = (formData.get("category") as string) || "public";
-    const relation  = (formData.get("relation") as string) || "public-observer";
-    const country   = (formData.get("country") as string) || "";
-    const state     = (formData.get("state") as string) || "";
+    const {
+      name,
+      email,
+      title,
+      narrative,
+      mission,
+      category,
+      relation,
+      country,
+      state,
+      media,
+    } = body as {
+      name?: string;
+      email?: string;
+      title?: string;
+      narrative?: string;
+      mission?: string;
+      category?: string;
+      relation?: string;
+      country?: string;
+      state?: string;
+      media?: MediaItem[];
+    };
 
-    // ── Multi-file media upload ──
-    const mediaCount = parseInt((formData.get("media_count") as string) || "0", 10);
-    const archiveMediaCount = parseInt((formData.get("archive_media_count") as string) || "0", 10);
-
-    // Validate combined total against the same cap the client enforces
-    if (mediaCount + archiveMediaCount > UPLOAD_CONFIG.maxFiles) {
+    if (!name || !title || !narrative) {
       return NextResponse.json(
-        { success: false, error: `Maximum ${UPLOAD_CONFIG.maxFiles} files allowed.` },
+        { success: false, error: "Missing required fields." },
         { status: 400 }
       );
     }
 
-    const mediaUrls: { url: string; type: "image" | "video" }[] = [];
+    const mediaUrls: MediaItem[] = Array.isArray(media) ? media : [];
 
-    // ── Uploaded files (go through Cloudinary) ──
-    for (let i = 0; i < mediaCount; i++) {
-      const file = formData.get(`media_${i}`) as File | null;
-      const type = (formData.get(`media_${i}_type`) as "image" | "video") || "image";
-
-      if (!file || file.size === 0) continue;
-
-      const sizeError = validateFileSize(file, type);
-      if (sizeError) {
-        return NextResponse.json({ success: false, error: sizeError }, { status: 400 });
-      }
-
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const url = await uploadToCloudinary(buffer, type);
-      mediaUrls.push({ url, type });
+    if (mediaUrls.length > MAX_FILES) {
+      return NextResponse.json(
+        { success: false, error: `Maximum ${MAX_FILES} files allowed.` },
+        { status: 400 }
+      );
     }
 
-    // ── Archive-picked images (static paths already on disk, no upload needed) ──
-    for (let i = 0; i < archiveMediaCount; i++) {
-      const archivePath = formData.get(`archive_media_${i}`) as string | null;
-      if (!archivePath) continue;
-
-      mediaUrls.push({ url: archivePath, type: "image" });
+    // Sanity check: since files are now uploaded directly to Cloudinary
+    // from the browser before this route is ever called, verify every
+    // URL actually points at OUR Cloudinary account before trusting it —
+    // otherwise this endpoint could be used to store arbitrary URLs.
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const expectedPrefix = `https://res.cloudinary.com/${cloudName}/`;
+    const invalidMedia = mediaUrls.find(
+      (m) => !m?.url || !m?.type || !m.url.startsWith(expectedPrefix)
+    );
+    if (invalidMedia) {
+      return NextResponse.json(
+        { success: false, error: "Invalid media URL." },
+        { status: 400 }
+      );
     }
 
     // Backwards-compatible: keep imageUrl pointing to the first image
@@ -119,23 +77,23 @@ export async function POST(req: Request) {
       title,
       narrative,
       mission,
-      category,
-      relation,
-      country,
-      state,
+      category: category || "public",
+      relation: relation || "public-observer",
+      country: country || "",
+      state: state || "",
       imageUrl,
-      media:  mediaUrls,
+      media: mediaUrls,
       status: "pending",
     });
 
     try {
       await sendStoryAlert({
-        name:      String(name),
-        email:     String(email || ""),
-        title:     String(title),
-        mission:   String(mission),
+        name: String(name),
+        email: String(email || ""),
+        title: String(title),
+        mission: String(mission),
         narrative: String(narrative),
-        media:     mediaUrls,
+        media: mediaUrls,
       });
     } catch (emailErr) {
       console.error("[Email alert failed]", emailErr);
@@ -149,10 +107,9 @@ export async function POST(req: Request) {
 }
 
 // ─────────────────────────────────────────────
-// GET
+// GET — unchanged
 // ─────────────────────────────────────────────
 export async function GET(req: Request) {
-  console.log("MONGODB_URI:", process.env.MONGODB_URI);
   try {
     await connectDB();
     const { searchParams } = new URL(req.url);
@@ -179,7 +136,7 @@ export async function GET(req: Request) {
 
     const totalStories = await Story.countDocuments(query);
     const stories = await Story.find(query)
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
