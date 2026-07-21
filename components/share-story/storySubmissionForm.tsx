@@ -27,7 +27,7 @@ type MediaFile = {
   error?: string;
   source: "upload" | "archive";
   file?: File;          // only present for uploads
-  archivePath?: string; // only present for archive picks, e.g. "/archive-images/launch-01.jpg"
+  archivePath?: string; // only present for archive picks, e.g. "https://res.cloudinary.com/..."
 };
 
 type Phase = "idle" | "compressing" | "uploading" | "saving";
@@ -180,10 +180,15 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
         const type = uploads[i].type;
         setUploadProgress({ index: i + 1, pct: 0 });
 
+        // Request signature containing multiple variations of type parameter for backend compatibility
         const sigRes = await fetch("/api/cloudinary-signature", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type }),
+          body: JSON.stringify({
+            type,
+            resource_type: type,
+            resourceType: type,
+          }),
         });
         if (!sigRes.ok) throw new Error("Could not authorize upload. Please try again.");
         const sigData = await sigRes.json();
@@ -203,12 +208,25 @@ export const StoryForm: React.FC<StoryFormProps> = ({ selectedPrompt, onClearPro
       setPhase("saving");
       setUploadProgress(null);
 
+      // Merge Cloudinary uploads and archive paths together into the media schema
+      const combinedMedia = [
+        ...mediaResults,
+        ...archivePicks.map((m) => ({
+          url: m.archivePath as string,
+          type: "image" as const,
+        })),
+      ];
+
       const payload = {
-        ...formEntries,
+        name: formEntries.name,
+        email: formEntries.email,
+        title: formEntries.title,
+        narrative: formEntries.narrative,
+        country: formEntries.country || "",
+        state: formEntries.state || "",
         mission: "challenger",
         selectedPrompt: selectedPrompt || undefined,
-        media: mediaResults,
-        archiveMedia: archivePicks.map((m) => m.archivePath),
+        media: combinedMedia,
       };
 
       const response = await fetch("/api/stories", {
