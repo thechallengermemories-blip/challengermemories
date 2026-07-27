@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PenLine, Rocket, Star, HelpCircle, ArrowRight, Palette, Camera, Film, Mic, ImageIcon, Pencil, FileImage } from "lucide-react";
 import { PROMPT_CATEGORIES, PromptCategory } from "./promptsData";
+import { WhyYourStoryMatters } from "./WhyYourStoryMatters";
 
 interface HeaderProps {
   onSelectPrompt: (prompt: string) => void;
@@ -110,6 +111,9 @@ export const StoryPageHeader: React.FC<HeaderProps> = ({ onSelectPrompt, selecte
           Whether you witnessed the mission or inherited its memory, your voice belongs in this permanent public archive.
         </motion.p>
 
+
+        <WhyYourStoryMatters/>
+        
         {/* Prompt Engine */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

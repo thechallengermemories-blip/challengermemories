@@ -1,8 +1,9 @@
 "use client";
-import { StoryPageHeader } from "@/components/share-story/storyHeader";
-import { StoryForm } from "@/components/share-story/storySubmissionForm";
-import React, { useState } from "react";
 
+import React, { useState } from "react";
+import { StoryPageHeader } from "@/components/share-story/storyHeader";
+import { WhyYourStoryMatters } from "@/components/share-story/WhyYourStoryMatters";
+import { StoryForm } from "@/components/share-story/storySubmissionForm";
 
 export default function ShareStoryPage() {
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
@@ -22,13 +23,13 @@ export default function ShareStoryPage() {
 
   return (
     <main className="min-h-screen bg-[#020617] overflow-x-hidden">
-      {/* Interactive header block containing prompt selectors */}
+      {/* 1. Header with prompt selector */}
       <StoryPageHeader 
         onSelectPrompt={handleSelectPrompt} 
         selectedPrompt={selectedPrompt} 
       />
       
-      {/* Form Submission Block */}
+      {/* 3. Story submission form */}
       <StoryForm
         selectedPrompt={selectedPrompt} 
         onClearPrompt={handleClearPrompt} 

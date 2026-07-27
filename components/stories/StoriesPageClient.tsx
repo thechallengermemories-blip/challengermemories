@@ -5,8 +5,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { StoryCard } from '@/components/stories/StoryCard';
 import { Pagination } from '@/components/stories/Pagination';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search } from 'lucide-react';
-
+import { Search, BookOpen, Sparkles, Users, Heart, Globe } from 'lucide-react';
 const StoriesPageClient = () => {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +14,6 @@ const StoriesPageClient = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef('');
   const storiesSectionRef = useRef<HTMLDivElement>(null);
-
 
   const fetchStories = useCallback(async (query: string, page: number) => {
     setLoading(true);
@@ -67,7 +65,7 @@ const StoriesPageClient = () => {
       <Navbar />
 
       {/* ── HERO HEADER ─────────────────────────────────────── */}
-      <header className="relative pt-36 sm:pt-40 pb-16 px-4 sm:px-6 overflow-hidden">
+      <header className="relative pt-36 sm:pt-40 pb-12 px-4 sm:px-6 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(56,189,248,0.1),transparent_65%)]" />
         </div>
@@ -95,7 +93,7 @@ const StoriesPageClient = () => {
             </h1>
 
             {/* Subheading */}
-            <p className="text-slate-400 font-light text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-14">
+            <p className="text-slate-400 font-light text-base sm:text-lg max-w-xl mx-auto leading-relaxed mb-10">
               Forty years on, the world still holds Challenger close. These are the memories people carry — from classrooms, living rooms, and lifetimes shaped by a single morning.
             </p>
 
@@ -110,7 +108,7 @@ const StoriesPageClient = () => {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-indigo-500/20 blur-xl opacity-50 rounded-full" />
 
-            {/* Desktop */}
+            {/* Desktop Search */}
             <div className="relative hidden sm:flex bg-slate-950/60 border border-white/10 backdrop-blur-2xl rounded-full p-1.5 items-center shadow-2xl">
               <div className="pl-5 text-sky-500/50 flex-shrink-0">
                 <Search size={18} />
@@ -127,7 +125,7 @@ const StoriesPageClient = () => {
               </button>
             </div>
 
-            {/* Mobile */}
+            {/* Mobile Search */}
             <div className="relative flex flex-col sm:hidden gap-3 bg-slate-950/60 border border-white/10 backdrop-blur-2xl rounded-2xl p-3 shadow-2xl">
               <div className="flex items-center gap-3 px-1">
                 <Search size={17} className="text-sky-500/50 flex-shrink-0" />
@@ -145,10 +143,97 @@ const StoriesPageClient = () => {
             </div>
           </motion.div>
         </div>
+
+        {/* ── ABOUT THIS COLLECTION (Archive Introduction) ──────── */}
+        {/* ── ABOUT THIS COLLECTION (Archival Manifest Display) ──────── */}
+       
+      {/* ── ABOUT THIS COLLECTION (Archival Manifest Display) ──────── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="max-w-5xl mx-auto mt-10 mb-6 px-2 relative z-10"
+        >
+          {/* Ambient Outer Aura Glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-sky-500/10 via-purple-500/5 to-sky-500/10 rounded-[2.5rem] blur-2xl pointer-events-none" />
+
+          {/* HUD Container Card */}
+          <div className="relative rounded-[2rem] bg-slate-950/80 border border-white/10 backdrop-blur-2xl p-6 sm:p-8 overflow-hidden shadow-2xl">
+            
+            {/* Corner Bracket Accents */}
+            <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-sky-400/40 pointer-events-none" />
+            <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-sky-400/40 pointer-events-none" />
+            <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-sky-400/40 pointer-events-none" />
+            <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-sky-400/40 pointer-events-none" />
+
+            {/* HUD Status Header Bar */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 mb-6 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-400" />
+                </span>
+                <span className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.35em] text-sky-400 font-semibold">
+                  Collection Manifest // About This Archive
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 font-mono text-[9px] text-slate-400 uppercase tracking-widest bg-white/[0.03] px-3 py-1 rounded-full border border-white/5 w-fit">
+                <Globe size={11} className="text-sky-400" />
+                <span>Global Human Record</span>
+              </div>
+            </div>
+
+            {/* 3-Pillar Archival Grid (Top-Aligned Flex) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+              
+              {/* Pillar 01 */}
+              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-sky-500/30 transition-all duration-300 group flex flex-col justify-start gap-4">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-sky-400/90 bg-sky-500/10 px-2.5 py-0.5 rounded border border-sky-500/20 font-bold">
+                    01 · Diverse Voices
+                  </span>
+                  <Users size={14} className="text-slate-500 group-hover:text-sky-400 transition-colors shrink-0" />
+                </div>
+                <p className="text-slate-300 text-xs sm:text-sm font-light leading-relaxed">
+                  This collection represents the personal experiences of individuals from many different backgrounds, generations, and communities.
+                </p>
+              </div>
+
+              {/* Pillar 02 (Fixed Gap & Top Alignment) */}
+              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-violet-500/30 transition-all duration-300 group flex flex-col justify-start gap-4">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-violet-300 bg-violet-500/15 px-2.5 py-0.5 rounded border border-violet-500/30 font-bold">
+                    02 · Human Reflection
+                  </span>
+                  <Heart size={14} className="text-slate-500 group-hover:text-violet-400 transition-colors shrink-0" />
+                </div>
+                <p className="text-slate-300 text-xs sm:text-sm font-light leading-relaxed">
+                  Each submission reflects the contributor's own memories and perspective, preserving the personal stories and experiences that make this archive meaningful.
+                </p>
+              </div>
+
+              {/* Pillar 03 (Highlighted Core Mission) */}
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-sky-500/10 via-slate-900/60 to-purple-500/10 border border-sky-500/30 hover:border-sky-400/50 transition-all duration-300 group flex flex-col justify-start gap-4 relative overflow-hidden shadow-lg">
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-mono text-[9px] uppercase tracking-widest text-sky-300 bg-sky-500/20 px-2.5 py-0.5 rounded border border-sky-400/30 font-bold">
+                    03 · Living Record
+                  </span>
+                  <Sparkles size={14} className="text-sky-400 animate-pulse shrink-0" />
+                </div>
+                <p className="text-white font-serif italic text-xs sm:text-sm leading-relaxed">
+                  Together, these stories create a living historical record of Challenger’s continuing influence on education, exploration, and the human spirit.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </motion.div>
       </header>
 
       {/* ── STORIES GRID ────────────────────────────────────── */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-32">
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-32">
 
         {/* Section label row */}
         <div ref={storiesSectionRef} className="flex items-center justify-between mb-10">
@@ -171,66 +256,65 @@ const StoriesPageClient = () => {
           </div>
         </div>
 
+        {/* Loading state */}
         {loading && (
-  <>
-    {/* Mission spinner */}
-    <div className="flex flex-col items-center gap-6 py-12">
-      <div className="relative w-16 h-16">
-        <svg className="absolute inset-0 animate-spin" style={{ animationDuration: '2.8s' }} viewBox="0 0 64 64" fill="none">
-          <circle cx="32" cy="32" r="30" stroke="rgba(56,189,248,0.12)" strokeWidth="1.5"/>
-          <circle cx="32" cy="32" r="30" stroke="rgba(56,189,248,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="28 160"/>
-          <circle cx="32" cy="2" r="2.5" fill="#38bdf8"/>
-        </svg>
-        <svg className="absolute inset-[10px]" style={{ animation: 'spin 1.8s linear infinite reverse' }} viewBox="0 0 44 44" fill="none">
-          <circle cx="22" cy="22" r="18" stroke="rgba(56,189,248,0.35)" strokeWidth="1" strokeLinecap="round" strokeDasharray="12 100"/>
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-2 h-2 rounded-full bg-sky-500/80" />
-        </div>
-      </div>
-      <div className="text-center">
-        <p className="font-mono text-[10px] tracking-[0.3em] text-sky-400/60 uppercase mb-1">
-          Syncing memory archive
-        </p>
-        <p className="font-mono text-[8px] tracking-[0.25em] text-sky-400/25 uppercase animate-pulse">
-          transmission incoming
-        </p>
-      </div>
-    </div>
+          <>
+            {/* Mission spinner */}
+            <div className="flex flex-col items-center gap-6 py-12">
+              <div className="relative w-16 h-16">
+                <svg className="absolute inset-0 animate-spin" style={{ animationDuration: '2.8s' }} viewBox="0 0 64 64" fill="none">
+                  <circle cx="32" cy="32" r="30" stroke="rgba(56,189,248,0.12)" strokeWidth="1.5"/>
+                  <circle cx="32" cy="32" r="30" stroke="rgba(56,189,248,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="28 160"/>
+                  <circle cx="32" cy="2" r="2.5" fill="#38bdf8"/>
+                </svg>
+                <svg className="absolute inset-[10px]" style={{ animation: 'spin 1.8s linear infinite reverse' }} viewBox="0 0 44 44" fill="none">
+                  <circle cx="22" cy="22" r="18" stroke="rgba(56,189,248,0.35)" strokeWidth="1" strokeLinecap="round" strokeDasharray="12 100"/>
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-sky-500/80" />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="font-mono text-[10px] tracking-[0.3em] text-sky-400/60 uppercase mb-1">
+                  Syncing memory archive
+                </p>
+                <p className="font-mono text-[8px] tracking-[0.25em] text-sky-400/25 uppercase animate-pulse">
+                  transmission incoming
+                </p>
+              </div>
+            </div>
 
-    {/* Skeleton cards */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 flex flex-col gap-3 overflow-hidden">
-          {/* scanline */}
-          <div className="absolute inset-x-0 h-12 bg-gradient-to-b from-transparent via-sky-400/[0.05] to-transparent animate-[scan_2.8s_ease-in-out_infinite]"
-               style={{ animationDelay: `${i * 0.35}s` }} />
-          {/* corners */}
-          {['top-2 left-2 border-t border-l','top-2 right-2 border-t border-r','bottom-2 left-2 border-b border-l','bottom-2 right-2 border-b border-r'].map((cls,j) => (
-            <div key={j} className={`absolute w-2 h-2 ${cls} border-sky-400/20`} />
-          ))}
-          <p className="font-mono text-[8px] tracking-[0.18em] text-sky-400/20 uppercase">REC-00{i} · awaiting</p>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-sky-400/30 animate-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
-            <div className="h-4 w-20 rounded-full bg-white/[0.04] border border-sky-400/10 animate-pulse" />
-            <div className="h-4 w-12 rounded-full bg-white/[0.04] border border-sky-400/10 animate-pulse ml-auto" />
-          </div>
-          <div className="h-3 w-[85%] rounded bg-white/[0.04] animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
-          <div className="h-3 w-[60%] rounded bg-white/[0.04] animate-pulse" />
-          <div className="h-px bg-white/[0.04] my-1" />
-          <div className="h-2.5 w-full rounded bg-white/[0.04] animate-pulse" />
-          <div className="h-2.5 w-[80%] rounded bg-white/[0.04] animate-pulse" />
-          <div className="h-2.5 w-[65%] rounded bg-white/[0.04] animate-pulse" />
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex-1 h-px bg-sky-400/[0.08]" />
-            <span className="font-mono text-[7px] tracking-[0.2em] text-sky-400/18 uppercase">awaiting transmission</span>
-            <div className="flex-1 h-px bg-sky-400/[0.08]" />
-          </div>
-        </div>
-      ))}
-    </div>
-  </>
-)}
+            {/* Skeleton cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 flex flex-col gap-3 overflow-hidden">
+                  <div className="absolute inset-x-0 h-12 bg-gradient-to-b from-transparent via-sky-400/[0.05] to-transparent animate-[scan_2.8s_ease-in-out_infinite]"
+                       style={{ animationDelay: `${i * 0.35}s` }} />
+                  {['top-2 left-2 border-t border-l','top-2 right-2 border-t border-r','bottom-2 left-2 border-b border-l','bottom-2 right-2 border-b border-r'].map((cls,j) => (
+                    <div key={j} className={`absolute w-2 h-2 ${cls} border-sky-400/20`} />
+                  ))}
+                  <p className="font-mono text-[8px] tracking-[0.18em] text-sky-400/20 uppercase">REC-00{i} · awaiting</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-sky-400/30 animate-pulse" style={{ animationDelay: `${i * 0.3}s` }} />
+                    <div className="h-4 w-20 rounded-full bg-white/[0.04] border border-sky-400/10 animate-pulse" />
+                    <div className="h-4 w-12 rounded-full bg-white/[0.04] border border-sky-400/10 animate-pulse ml-auto" />
+                  </div>
+                  <div className="h-3 w-[85%] rounded bg-white/[0.04] animate-pulse" style={{ animationDelay: `${i * 0.1}s` }} />
+                  <div className="h-3 w-[60%] rounded bg-white/[0.04] animate-pulse" />
+                  <div className="h-px bg-white/[0.04] my-1" />
+                  <div className="h-2.5 w-full rounded bg-white/[0.04] animate-pulse" />
+                  <div className="h-2.5 w-[80%] rounded bg-white/[0.04] animate-pulse" />
+                  <div className="h-2.5 w-[65%] rounded bg-white/[0.04] animate-pulse" />
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex-1 h-px bg-sky-400/[0.08]" />
+                    <span className="font-mono text-[7px] tracking-[0.2em] text-sky-400/18 uppercase">awaiting transmission</span>
+                    <div className="flex-1 h-px bg-sky-400/[0.08]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* Stories */}
         {!loading && stories.length > 0 && (
@@ -268,14 +352,14 @@ const StoriesPageClient = () => {
 
         {/* Pagination */}
         {!loading && stories.length > 0 && (
-         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-           onPageChange={(page) => {
-            setCurrentPage(page);
-            storiesSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+              storiesSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
         )}
       </section>
     </main>

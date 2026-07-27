@@ -7,11 +7,13 @@ import { WhyChallengerMemoriesExists } from './WhyThisExists'
 import { RecentlyAddedMemories } from './RecentlyAdded'
 import { ArchiveStatistics } from './ArchieveStats'
 import { InteractiveMemoryMap } from './memorymap'
+import { WhyThisProjectExists } from './WhyThisProjectExists'
 
 const Homepage = () => {
   return (
     <>
     <HeroSection/>
+    <WhyThisProjectExists />
     <FeaturedStories/>
     <MissionSelector/>
     <WhyChallengerMemoriesExists/>
