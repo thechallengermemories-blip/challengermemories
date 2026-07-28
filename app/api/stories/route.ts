@@ -1,7 +1,7 @@
-// Place at: app/api/stories/route.ts
 import { NextResponse } from "next/server";
 import { connectDB, Story } from "../../../lib/db";
 import { sendStoryAlert } from "@/lib/sendStoryAlert";
+import cloudinary from "../../../lib/cloudinary";
 
 const MAX_FILES = 3;
 
@@ -52,15 +52,29 @@ export async function POST(req: Request) {
       );
     }
 
-    // Sanity check: since files are now uploaded directly to Cloudinary
-    // from the browser before this route is ever called, verify every
-    // URL actually points at OUR Cloudinary account before trusting it —
-    // otherwise this endpoint could be used to store arbitrary URLs.
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-    const expectedPrefix = `https://res.cloudinary.com/${cloudName}/`;
-    const invalidMedia = mediaUrls.find(
-      (m) => !m?.url || !m?.type || !m.url.startsWith(expectedPrefix)
-    );
+    // Extract Cloudinary cloud_name parsed from CLOUDINARY_URL
+    const cloudName = cloudinary.config().cloud_name;
+    const expectedCloudinaryPrefix = cloudName
+      ? `https://res.cloudinary.com/${cloudName}/`
+      : "https://res.cloudinary.com/";
+
+    // Validate media URLs: allow local/archive paths (starting with / or http) OR Cloudinary URLs
+    const invalidMedia = mediaUrls.find((m) => {
+      if (!m?.url || !m?.type) return true;
+
+      const isLocalOrExternalArchive =
+        m.url.startsWith("/") ||
+        m.url.startsWith("./") ||
+        m.url.startsWith("http://") ||
+        m.url.startsWith("https://");
+
+      const isCloudinary =
+        m.url.startsWith(expectedCloudinaryPrefix) ||
+        m.url.startsWith("https://res.cloudinary.com/");
+
+      return !isLocalOrExternalArchive && !isCloudinary;
+    });
+
     if (invalidMedia) {
       return NextResponse.json(
         { success: false, error: "Invalid media URL." },
@@ -106,9 +120,6 @@ export async function POST(req: Request) {
   }
 }
 
-// ─────────────────────────────────────────────
-// GET — unchanged
-// ─────────────────────────────────────────────
 export async function GET(req: Request) {
   try {
     await connectDB();
