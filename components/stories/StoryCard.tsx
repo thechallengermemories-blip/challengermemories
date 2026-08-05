@@ -34,8 +34,10 @@ export const StoryCard = ({ story }: { story: any }) => {
 
   const isVideoStory = displayMedia?.type === 'video';
 
-  // Include available comments
-  const commentsList = Array.isArray(story.comments) ? story.comments : [];
+  // Filter to include ONLY approved comments
+  const commentsList = Array.isArray(story.comments)
+    ? story.comments.filter((comment: any) => comment?.status === 'approved')
+    : [];
   const latestComment = commentsList[0];
 
   const handlePlayClick = (e: React.MouseEvent) => {
@@ -77,14 +79,10 @@ export const StoryCard = ({ story }: { story: any }) => {
             </span>
 
             <div className="flex items-center gap-1.5">
-              {/* Comment Badge */}
+              {/* Approved Comment Badge */}
               {commentsList.length > 0 && (
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border ${
-                  latestComment?.status === 'pending'
-                    ? 'bg-amber-500/10 border-amber-500/20 text-amber-300'
-                    : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                }`}>
-                  <MessageSquare size={10} className={latestComment?.status === 'pending' ? 'text-amber-400' : 'text-emerald-400'} />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border bg-emerald-500/10 border-emerald-500/20 text-emerald-300">
+                  <MessageSquare size={10} className="text-emerald-400" />
                   <span>{commentsList.length}</span>
                 </span>
               )}
@@ -191,7 +189,7 @@ export const StoryCard = ({ story }: { story: any }) => {
             {story.narrative}
           </p>
 
-          {/* Left-Accented Comment Snippet Box */}
+          {/* Left-Accented Comment Snippet Box (Only Approved Comments) */}
           {latestComment && (
             <div className="mb-3.5 p-3 rounded-xl bg-slate-900/90 border-l-2 border-l-sky-400 border-y border-r border-slate-800/80 hover:border-slate-700/80 transition-all flex flex-col gap-1 shadow-sm">
               <div className="flex items-center justify-between text-[11px]">
@@ -200,15 +198,9 @@ export const StoryCard = ({ story }: { story: any }) => {
                   <span className="truncate font-semibold">{latestComment.name || 'Visitor'}</span>
                 </div>
 
-                {latestComment.status === 'pending' ? (
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    Pending
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-slate-500 font-mono">
-                    {commentsList.length > 1 ? `+${commentsList.length - 1} more` : 'Latest comment'}
-                  </span>
-                )}
+                <span className="text-[10px] text-slate-500 font-mono">
+                  {commentsList.length > 1 ? `+${commentsList.length - 1} more` : 'Latest comment'}
+                </span>
               </div>
               <p className="text-slate-300 text-[11.5px] italic line-clamp-2 leading-relaxed font-light">
                 "{latestComment.text}"
