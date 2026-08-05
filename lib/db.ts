@@ -23,11 +23,26 @@ const storySchema = new mongoose.Schema({
   state:    { type: String },
   imageUrl:  { type: String },          // legacy — first image URL
 
-  // ✅ Add this
+  // Media attachments
   media: [
     {
       url:  { type: String, required: true },
       type: { type: String, enum: ["image", "video"], required: true },
+    },
+  ],
+
+  // ✅ ADD COMMENTS HERE
+  comments: [
+    {
+      name: { type: String, required: true },
+      email: { type: String },
+      text: { type: String, required: true },
+      status: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        default: "pending", // New comments require admin approval before being shown
+      },
+      createdAt: { type: Date, default: Date.now },
     },
   ],
 
@@ -50,5 +65,6 @@ const storySchema = new mongoose.Schema({
   },
   createdAt: { type: Date, default: Date.now },
 });
+
 delete (mongoose.models as any).Story; // bust cache so schema changes apply
 export const Story = mongoose.models.Story || mongoose.model("Story", storySchema);

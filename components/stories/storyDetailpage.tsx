@@ -13,6 +13,10 @@ import {
   ChevronLeft,
   ChevronRight,
   ZoomIn,
+  MessageSquare,
+  Send,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,21 +27,25 @@ import { cn } from "@/lib/utils";
 // ─────────────────────────────────────────────
 type MediaItem = { url: string; type: "image" | "video" };
 
+type CommentItem = {
+  _id: string;
+  name: string;
+  text: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+};
+
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
-
-/** Normalise whatever the DB returns into a MediaItem[]. */
 function resolveMedia(story: any): MediaItem[] {
-  // New schema: story.media = [{ url, type }]
   if (Array.isArray(story.media) && story.media.length > 0) return story.media;
-  // Legacy: single imageUrl string
   if (story.imageUrl) return [{ url: story.imageUrl, type: "image" }];
   return [];
 }
 
 // ─────────────────────────────────────────────
-// Single media tile — image or video thumbnail
+// Single media tile
 // ─────────────────────────────────────────────
 function MediaTile({
   item,
@@ -71,7 +79,6 @@ function MediaTile({
             playsInline
             preload="metadata"
           />
-          {/* Play badge */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
             <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
               <Play size={20} className="text-white ml-1" fill="white" />
@@ -88,7 +95,6 @@ function MediaTile({
             className="object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
             priority={priority}
           />
-          {/* Zoom hint */}
           <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
             <div className="p-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
               <ZoomIn size={12} className="text-white/70" />
@@ -101,7 +107,7 @@ function MediaTile({
 }
 
 // ─────────────────────────────────────────────
-// Adaptive gallery: 1 / 2 / 3 items
+// Adaptive gallery
 // ─────────────────────────────────────────────
 function MediaGallery({
   items,
@@ -112,50 +118,50 @@ function MediaGallery({
 }) {
   if (items.length === 0) return null;
 
-  // ── 1 item: full-width cinematic ─────────────────────────────────────────
- if (items.length === 1) {
-  return (
-    <section className="relative mb-24 flex justify-center">
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        onClick={() => onOpen(0)}
-        className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-white/5 cursor-zoom-in group"
-      >
-        {items[0].type === 'video' ? (
-          <>
-            <video
-              src={items[0].url}
-              className="w-full h-auto"
-              muted playsInline preload="metadata"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
-              <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Play size={20} className="text-white ml-1" fill="white" />
+  if (items.length === 1) {
+    return (
+      <section className="relative mb-24 flex justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          onClick={() => onOpen(0)}
+          className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-white/5 cursor-zoom-in group"
+        >
+          {items[0].type === "video" ? (
+            <>
+              <video
+                src={items[0].url}
+                className="w-full h-auto"
+                muted
+                playsInline
+                preload="metadata"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition-colors">
+                <div className="w-14 h-14 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Play size={20} className="text-white ml-1" fill="white" />
+                </div>
               </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <img
-              src={items[0].url}
-              alt=""
-              className="w-full h-auto block"  // natural aspect ratio, no black bars
-            />
-            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="p-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
-                <ZoomIn size={12} className="text-white/70" />
+            </>
+          ) : (
+            <>
+              <img
+                src={items[0].url}
+                alt=""
+                className="w-full h-auto block"
+              />
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="p-1.5 rounded-full bg-black/50 backdrop-blur-sm border border-white/10">
+                  <ZoomIn size={12} className="text-white/70" />
+                </div>
               </div>
-            </div>
-          </>
-        )}
-      </motion.div>
-    </section>
-  );
-}
+            </>
+          )}
+        </motion.div>
+      </section>
+    );
+  }
 
-  // ── 2 items: side-by-side equal columns ──────────────────────────────────
   if (items.length === 2) {
     return (
       <section className="relative mb-24 grid grid-cols-2 gap-3">
@@ -172,20 +178,17 @@ function MediaGallery({
     );
   }
 
-  // ── 3 items: large hero left + two stacked right ─────────────────────────
   return (
     <section
       className="relative mb-24 grid grid-cols-2 gap-3"
       style={{ gridTemplateRows: "auto" }}
     >
-      {/* Hero — spans both rows on the left */}
       <MediaTile
         item={items[0]}
         onClick={() => onOpen(0)}
         priority
         className="row-span-2 h-[62vh]"
       />
-      {/* Two stacked on the right */}
       <MediaTile
         item={items[1]}
         onClick={() => onOpen(1)}
@@ -223,7 +226,6 @@ function MediaModal({
     [items.length],
   );
 
-  // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -242,7 +244,6 @@ function MediaModal({
       className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-md flex items-center justify-center"
       onClick={onClose}
     >
-      {/* Close */}
       <button
         onClick={onClose}
         className="absolute top-6 right-6 p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-all z-10"
@@ -250,14 +251,12 @@ function MediaModal({
         <X size={20} />
       </button>
 
-      {/* Counter */}
       {items.length > 1 && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-widest text-white/40 uppercase">
           {index + 1} / {items.length}
         </div>
       )}
 
-      {/* Prev */}
       {hasPrev && (
         <button
           onClick={(e) => {
@@ -270,7 +269,6 @@ function MediaModal({
         </button>
       )}
 
-      {/* Media */}
       <AnimatePresence mode="wait">
         <motion.div
           key={index}
@@ -300,7 +298,6 @@ function MediaModal({
         </motion.div>
       </AnimatePresence>
 
-      {/* Next */}
       {hasNext && (
         <button
           onClick={(e) => {
@@ -313,7 +310,6 @@ function MediaModal({
         </button>
       )}
 
-      {/* Dot indicators */}
       {items.length > 1 && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
           {items.map((_, i) => (
@@ -334,6 +330,199 @@ function MediaModal({
         </div>
       )}
     </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Comments Component
+// ─────────────────────────────────────────────
+function CommentSection({
+  storyId,
+  comments = [],
+  accentColor,
+  bgAccent,
+}: {
+  storyId: string;
+  comments: CommentItem[];
+  accentColor: string;
+  bgAccent: string;
+}) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // Only show approved comments publicly
+  const approvedComments = comments.filter((c) => c.status === "approved");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !text.trim()) {
+      setErrorMsg("Please fill out your name and comment.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setErrorMsg("");
+      const res = await fetch(`/api/stories/${storyId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, text }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to submit comment.");
+      }
+
+      setSubmittedSuccess(true);
+      setName("");
+      setEmail("");
+      setText("");
+    } catch (err: any) {
+      setErrorMsg(err.message || "An unexpected error occurred.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <section className="mt-20 pt-16 border-t border-white/10">
+      <div className="flex items-center gap-3 mb-10">
+        <MessageSquare size={20} className={accentColor} />
+        <h2 className="text-2xl font-serif text-white">
+          Comments ({approvedComments.length})
+        </h2>
+      </div>
+
+      {/* ── Approved Comments List ── */}
+      <div className="space-y-6 mb-16">
+        {approvedComments.length === 0 ? (
+          <p className="text-slate-500 font-mono text-xs uppercase tracking-widest">
+            No comments yet. Be the first to share a reflection.
+          </p>
+        ) : (
+          approvedComments.map((comment) => (
+            <div
+              key={comment._id}
+              className="p-6 rounded-2xl bg-slate-900/30 border border-white/5 text-slate-300"
+            >
+              <div className="flex items-center justify-between mb-3 font-mono text-[11px] uppercase text-slate-500">
+                <span className="text-white font-semibold">{comment.name}</span>
+                <span>{new Date(comment.createdAt).toLocaleDateString()}</span>
+              </div>
+              <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-line">
+                {comment.text}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* ── Comment Form ── */}
+      <div className="rounded-3xl border border-white/10 bg-slate-900/20 p-8 backdrop-blur-sm">
+        <h3 className="text-lg font-serif text-white mb-2">Leave a Comment</h3>
+        <p className="text-slate-400 text-xs mb-8">
+          Your comment will be posted after admin approval.
+        </p>
+
+        {submittedSuccess ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4 p-5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+          >
+            <Clock size={24} className="shrink-0 text-emerald-400" />
+            <div>
+              <h4 className="font-semibold text-sm">Comment Submitted</h4>
+              <p className="text-xs text-emerald-400/80 mt-0.5">
+                Comment added for admin review. It will appear on this page once approved.
+              </p>
+            </div>
+            <button
+              onClick={() => setSubmittedSuccess(false)}
+              className="ml-auto text-xs font-mono uppercase underline text-emerald-400 hover:text-white"
+            >
+              Add another
+            </button>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {errorMsg && (
+              <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/30 text-red-300 text-xs font-mono">
+                {errorMsg}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2">
+                  Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your Name"
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-slate-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2">
+                  Email <span className="text-slate-600">(Optional / Private)</span>
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-slate-500 transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-mono uppercase tracking-widest text-slate-400 mb-2">
+                Comment <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                required
+                rows={4}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="Share your thoughts..."
+                className="w-full bg-slate-950/60 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-slate-500 transition-colors resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className={cn(
+                "inline-flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs uppercase tracking-widest text-white font-semibold transition-all hover:opacity-90 disabled:opacity-50",
+                bgAccent
+              )}
+            >
+              {submitting ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> Submitting...
+                </>
+              ) : (
+                <>
+                  <Send size={14} /> Submit Comment
+                </>
+              )}
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -384,7 +573,7 @@ export default function StoryDetailPage() {
       </div>
     );
 
-  const { data: story, related } = data;
+  const { data: story } = data;
   const mediaItems = resolveMedia(story);
   const isChallenger = story.mission === "challenger";
   const accentColor = isChallenger ? "text-sky-400" : "text-purple-400";
@@ -393,7 +582,6 @@ export default function StoryDetailPage() {
 
   return (
     <main className="bg-[#020617] min-h-screen text-slate-100 selection:bg-white/10">
-      {/* Scroll progress bar */}
       <motion.div
         className={cn(
           "fixed top-0 left-0 right-0 h-[2px] z-[100] origin-left",
@@ -403,17 +591,17 @@ export default function StoryDetailPage() {
       />
 
       <article className="max-w-7xl mx-auto px-6 pt-40 pb-32">
-  <Link
-    href="/stories"
-    className="inline-flex items-center gap-3 text-slate-500 hover:text-white transition-all mb-20 group font-mono text-xs uppercase tracking-widest"
-  >
-    <ArrowLeft
-      size={14}
-      className="group-hover:-translate-x-1 transition-transform duration-200"
-    />
-    <div className="w-8 h-[1px] bg-slate-700 group-hover:w-12 transition-all duration-300" />
-    Back to Archives
-  </Link>
+        <Link
+          href="/stories"
+          className="inline-flex items-center gap-3 text-slate-500 hover:text-white transition-all mb-20 group font-mono text-xs uppercase tracking-widest"
+        >
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform duration-200"
+          />
+          <div className="w-8 h-[1px] bg-slate-700 group-hover:w-12 transition-all duration-300" />
+          Back to Archives
+        </Link>
 
         {/* Header */}
         <header className="mb-16">
@@ -430,10 +618,10 @@ export default function StoryDetailPage() {
           </h1>
         </header>
 
-        {/* ── Adaptive Media Gallery ── */}
+        {/* Media Gallery */}
         <MediaGallery items={mediaItems} onOpen={(i) => setModalIndex(i)} />
 
-        {/* ── Lightbox ── */}
+        {/* Lightbox */}
         <AnimatePresence>
           {modalIndex !== null && (
             <MediaModal
@@ -456,6 +644,14 @@ export default function StoryDetailPage() {
             <div className="prose prose-invert prose-lg max-w-none text-slate-300 leading-relaxed">
               {story.narrative}
             </div>
+
+            {/* ── Comment Section ── */}
+            <CommentSection
+              storyId={id as string}
+              comments={story.comments || []}
+              accentColor={accentColor}
+              bgAccent={bgAccent}
+            />
           </div>
 
           <aside className="lg:col-span-1">
@@ -473,7 +669,6 @@ export default function StoryDetailPage() {
                 This record belongs to the {story.mission} archives. Visual data
                 has been preserved in its original aspect ratio.
               </p>
-              {/* Media count badge */}
               {mediaItems.length > 0 && (
                 <div className="flex items-center gap-2 pt-4 border-t border-white/5">
                   <span className="text-[9px] font-mono uppercase tracking-widest text-slate-600">

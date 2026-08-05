@@ -9,11 +9,12 @@ export async function GET(
     await connectDB();
     const { id } = await params;
 
-    // Explicitly select media + imageUrl so the field is never stripped,
-    // even if the Mongoose schema definition lags behind the new shape.
-    const story = await Story.findById(id).select(
-      "name email title narrative mission category relation imageUrl media status createdAt"
-    );
+    // Select all fields including comments and convert to plain JS object using .lean()
+    const story = await Story.findById(id)
+      .select(
+        "name email title narrative mission category relation imageUrl media comments status createdAt"
+      )
+      .lean();
 
     if (!story) {
       return NextResponse.json(
@@ -21,6 +22,16 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    // Filter comments so only "approved" comments are sent in the response
+    const approvedComments = (story.comments || []).filter(
+      (comment: any) => comment.status === "approved"
+    );
+
+    const storyData = {
+      ...story,
+      comments: approvedComments,
+    };
 
     // Related: same mission + category, exclude self, published only
     let related = await Story.find({
@@ -31,7 +42,8 @@ export async function GET(
     })
       .select("name title mission category imageUrl media createdAt")
       .sort({ createdAt: -1 })
-      .limit(3);
+      .limit(3)
+      .lean();
 
     // Fallback: any other published story if nothing matches
     if (related.length === 0) {
@@ -41,12 +53,13 @@ export async function GET(
       })
         .select("name title mission category imageUrl media createdAt")
         .sort({ createdAt: -1 })
-        .limit(3);
+        .limit(3)
+        .lean();
     }
 
     return NextResponse.json({
       success: true,
-      data: story,
+      data: storyData,
       related,
     });
   } catch (error: any) {
